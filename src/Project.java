@@ -13,24 +13,17 @@ public class Project {
     private final String permittedTypes = "SMALLMEDIUMLARGE";
 
     // Constructor.
-    public Project(int ID, String name, String type, String allProjectIDs, int amountProjects) {
+    public Project(int ID, String name, String type) {
         // Make sure that the soon-to-be project does not have an ID already in use.
-        String valueID = String.valueOf(ID);
-        if (allProjectIDs.contains(valueID + ",")) {
-            System.out.println("ERROR: Duplicate project ID!");
-            return;
-        }
-        if (amountProjects >= 3) {
-            System.out.println("ERROR: Maximum amount of concurrent projects already reached!");
-        }
-
         setProjectID(ID);
         setProjectName(name);
         setProjectType(type);
     }
 
     // Getters.
+    public int getProjectID() { return projectID; }
     public String getAllTaskIDs() { return allTaskIDs; }
+    public String getProjectType() { return projectType; }
 
     // Setters.
     public void setProjectID( int ID ) { this.projectID = ID; }
@@ -64,7 +57,7 @@ public class Project {
         this.allTaskIDs = allTaskIDs.concat(ID + ",");
     }
 
-    // Other methods relating to the Project itself.
+    // Other methods relating to the Project itself and its Tasks.
     public void deleteTask(int ID) {
         if ((task1 != null) && (task1.getTaskID() == ID)) {
             task1 = null;
@@ -79,4 +72,20 @@ public class Project {
         System.out.println("Task #" + String.valueOf(ID) + " of Project #" + this.projectID + " deleted.");
         return;
     }
+
+    public void markTaskComplete(int ID) {
+        if ((task1 != null) && (task1.getTaskID() == ID)) {
+            task1.setCompleted(true);
+        } else if ((task2 != null) && (task2.getTaskID() == ID)) {
+            task2.setCompleted(true);
+        } else if ((task3 != null) && (task3.getTaskID() == ID)) {
+            task3.setCompleted(true);
+        } else {
+            System.out.println("ERROR: Invalid Task ID used to request marking of completion from Project #" + this.projectID + "!");
+            return;
+        }
+        System.out.println("Task #" + String.valueOf(ID) + " of Project #" + this.projectID + " marked completed.");
+        return;
+    }
+
 }

@@ -18,21 +18,11 @@ public class Task {
     }
 
     // Getters.
-    public int getTaskID() {
-        return this.taskID;
-    }
-    public String getDescription() {
-        return this.description;
-    }
-    public boolean getCompleted() {
-        return this.completed;
-    }
-    public String getTaskType() {
-        return this.taskType;
-    }
-    public int getTaskDuration() {
-        return this.taskDuration;
-    }
+    public int getTaskID() { return this.taskID; }
+    public String getDescription() { return this.description; }
+    public boolean getCompleted() { return this.completed; }
+    public String getTaskType() { return this.taskType; }
+    public int getTaskDuration() { return this.taskDuration; }
 
     // Setters.
     public void setTaskID(int ID, Project project) {
@@ -43,9 +33,6 @@ public class Task {
 
         this.taskID = ID;
         project.addTaskID(valueNewID);
-    }
-    public void setDescription(String description) {
-        this.description = description;
     }
     public void setTaskType(String type) {
         type = type.toUpperCase();
@@ -59,12 +46,9 @@ public class Task {
 
         this.taskType = type;
     }
-    public void setTaskDuration(int duration) {
-        this.taskDuration = duration;
-    }
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
-    }
+    public void setDescription(String description) { this.description = description; }
+    public void setTaskDuration(int duration) { this.taskDuration = duration; }
+    public void setCompleted(boolean completed) { this.completed = completed; }
 
 
 }
