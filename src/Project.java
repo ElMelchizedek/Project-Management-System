@@ -24,6 +24,17 @@ public class Project {
     public int getProjectID() { return projectID; }
     public String getAllTaskIDs() { return allTaskIDs; }
     public String getProjectType() { return projectType; }
+    public Task getTask(int number) {
+        if (number == 1) {
+            return task1;
+        } else if (number == 2) {
+            return task2;
+        } else if (number == 3) {
+            return task3;
+        } else {
+            return null;
+        }
+    }
 
     // Setters.
     public void setProjectID( int ID ) { this.projectID = ID; }
@@ -86,6 +97,17 @@ public class Project {
         }
         System.out.println("Task #" + String.valueOf(ID) + " of Project #" + this.projectID + " marked completed.");
         return;
+    }
+
+    public int amountTasks() {
+        int amountTasks = 0;
+        String IDs = getAllTaskIDs();
+        for (int i =0; i < IDs.length(); i++) {
+            if (IDs.charAt(i) == ',') {
+                amountTasks++;
+            }
+        }
+        return amountTasks;
     }
 
 }

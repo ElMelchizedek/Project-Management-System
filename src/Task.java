@@ -50,5 +50,12 @@ public class Task {
     public void setTaskDuration(int duration) { this.taskDuration = duration; }
     public void setCompleted(boolean completed) { this.completed = completed; }
 
+    // Auxiliary Methods
+    // Returns status of Task, per the "completed" variable.
+    public String status() {
+        if (completed) {
+            return "Completed";
+        } else { return "Pending"; }
+    }
 
 }
