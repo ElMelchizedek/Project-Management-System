@@ -10,7 +10,7 @@ public class Project {
 
     // Internal variables.
     private String allTaskIDs;
-    private final String permittedTypes = "SMALLMEDIUMLARGE";
+    public static final String permittedTypes = "SMALLMEDIUMLARGE";
 
     // Constructor.
     public Project(int ID, String name, String type) {
@@ -46,17 +46,22 @@ public class Project {
             System.out.println("ERROR: Specified Task Type is not permitted!");
             return;
         }
-
-        this.projectType = type;
+        if (type.equals("SMALL")) {
+            this.projectType = "Small";
+        } else if (type.equals("MEDIUM")) {
+            this.projectType = "Medium";
+        } else if (type.equals("LARGE")) {
+            this.projectType = "Large";
+        }
     }
 
     // Methods relating to Tasks.
     public void createTask(int ID, String description, String type, int duration, boolean completed) {
         if (task1 == null) {
             task1 = new Task(ID, description, type, duration, completed, this);
-        } else if ((task2 == null) && (projectType.equals("MEDIUM"))) {
+        } else if ((task2 == null) && (projectType.equalsIgnoreCase("MEDIUM"))) {
             task2 = new Task(ID, description, type, duration, completed, this);
-        } else if ((task3 == null) && (projectType.equals("LARGE"))) {
+        } else if ((task3 == null) && (projectType.equalsIgnoreCase("LARGE"))) {
             task3 = new Task(ID, description, type, duration, completed, this);
         } else {
             System.out.println("ERROR: Maximum amount of concurrent tasks for project #" + this.projectID + " has already been reached!");
@@ -117,6 +122,17 @@ public class Project {
             return amountTasks;
         }
         return 0;
+    }
+
+    public Task retrieveTaskByID(int ID) {
+        if (task1.getTaskID() == ID) {
+            return getTask(1);
+        } else if (task2.getTaskID() == ID) {
+            return getTask(2);
+        } else if (task3.getTaskID() == ID) {
+            return getTask(3);
+        }
+        return null;
     }
 
 }

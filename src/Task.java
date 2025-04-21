@@ -6,7 +6,7 @@ public class Task {
     private char taskType;
     private int taskDuration;
     // Internal variables.
-    private final String permittedTypes = "ALS";
+    public static final String permittedTypes = "ALS";
 
     // Constructors.
     public Task(int ID, String description, String type, int duration, boolean completed, Project project) {
