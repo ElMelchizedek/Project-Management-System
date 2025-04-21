@@ -3,7 +3,7 @@ public class Task {
     private int taskID;
     private String description;
     private boolean completed;
-    private String taskType;
+    private char taskType;
     private int taskDuration;
     // Internal variables.
     private final String permittedTypes = "ALS";
@@ -21,13 +21,13 @@ public class Task {
     public int getTaskID() { return this.taskID; }
     public String getDescription() { return this.description; }
     public boolean getCompleted() { return this.completed; }
-    public String getTaskType() { return this.taskType; }
+    public char getTaskType() { return this.taskType; }
     public int getTaskDuration() { return this.taskDuration; }
 
     // Setters.
     public void setTaskID(int ID, Project project) {
         String valueNewID = String.valueOf(ID);
-        if (project.getAllTaskIDs().contains(valueNewID + ",")) {
+        if (project.getAllTaskIDs() != null && project.getAllTaskIDs().contains(valueNewID + ",")) {
             System.out.println("ERROR: Duplicate task ID!");
         }
 
@@ -44,7 +44,7 @@ public class Task {
             System.out.println("ERROR: Task Type string is not either \"A\", \"L\", or \"S\".");
         }
 
-        this.taskType = type;
+        this.taskType = type.charAt(0);
     }
     public void setDescription(String description) { this.description = description; }
     public void setTaskDuration(int duration) { this.taskDuration = duration; }

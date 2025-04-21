@@ -21,6 +21,7 @@ public class Project {
     }
 
     // Getters.
+    public String getProjectName() { return projectName; }
     public int getProjectID() { return projectID; }
     public String getAllTaskIDs() { return allTaskIDs; }
     public String getProjectType() { return projectType; }
@@ -62,10 +63,15 @@ public class Project {
             return;
         }
 
+        System.out.println("Created Task #" + ID + " of type " + type + " lasting " + duration + "h, assigned to Project #" + projectID + ".");
         return;
     }
     public void addTaskID(String ID) {
-        this.allTaskIDs = allTaskIDs.concat(ID + ",");
+        if (this.allTaskIDs != null) {
+            this.allTaskIDs = allTaskIDs.concat(ID + ",");
+        } else {
+            this.allTaskIDs = ID.concat(",");
+        }
     }
 
     // Other methods relating to the Project itself and its Tasks.
@@ -102,12 +108,15 @@ public class Project {
     public int amountTasks() {
         int amountTasks = 0;
         String IDs = getAllTaskIDs();
-        for (int i =0; i < IDs.length(); i++) {
-            if (IDs.charAt(i) == ',') {
-                amountTasks++;
+        if (IDs != null) {
+            for (int i = 0; i < IDs.length(); i++) {
+                if (IDs.charAt(i) == ',') {
+                    amountTasks++;
+                }
             }
+            return amountTasks;
         }
-        return amountTasks;
+        return 0;
     }
 
 }
