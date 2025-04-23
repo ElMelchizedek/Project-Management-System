@@ -6,6 +6,10 @@ public class UserInterface {
     private static Project project2 = null;
     private static Project project3 = null;
 
+    // Constant needed for auxCalculateAverageDuration().
+    public static final double SECRET_NUMBER = 100000000;
+    public static final double SECRET_DIGITS = 9;
+
     // *** Auxiliary methods. ***
     // Used in optionCreateProject().
     private static String auxAssignProject(int ID, String type, String valueID, String IDsProjects) {
@@ -78,50 +82,38 @@ public class UserInterface {
         return matchingTasks;
     }
 
+    // Used in auxGetAverageTypeDurations().
+    public static double auxCalculateAverageDuration(Project project, String matches, int stopAtProject) {
+        int sumDurations = 0;
+        int amountMatching = 0;
+        if (matches.contains("1")) { sumDurations += project.getTask(1).getTaskDuration(); amountMatching++; }
+        if (matches.contains("2")) { sumDurations += project.getTask(2).getTaskDuration(); amountMatching++; }
+        if (matches.contains("3")) { sumDurations += project.getTask(3).getTaskDuration(); amountMatching++; }
+        // Here I do some funky stuff since I can't just return an array, so I need to be able to distinguish different
+        // outcomes whilst not being able to have multiple return types for the method.
+        // To differentiate I do this by multiplying the number by a defined power of 10 that is then checked by the
+        // calling function to figure out what kind of return value it is from this function.
+        if (stopAtProject == 1) {
+            return (((double)sumDurations / (double)amountMatching) * SECRET_NUMBER);
+        } else { return sumDurations; }
+    }
     // Used in dispAverageTaskDurations() and auxPrettyAverageTypeDurationsByProject().
     public static double auxGetAverageTypeDurations(char type, int stopAtProject) {
         int amountMatching = 0;
-        int amountMatching1 = 0;
-        int amountMatching2 = 0;
-        int amountMatching3 = 0;
-
         int sumDurations = 0;
-        int sumDurations1 = 0;
-        int sumDurations2 = 0;
-        int sumDurations3 = 0;
-        
-        Project selectProject;
-        String selectMatches;
-        
-        String matches1 = auxFilterTypes(project1, type);
-        String matches2 = auxFilterTypes(project2, type);
-        String matches3 = auxFilterTypes(project3, type);
-
 
         // I wish I had arrays right now.
-        selectProject = project1;
-        selectMatches = matches1;
-        if (selectMatches.contains("1")) { sumDurations1 += selectProject.getTask(1).getTaskDuration(); amountMatching1++; }
-        if (selectMatches.contains("2")) { sumDurations1 += selectProject.getTask(2).getTaskDuration(); amountMatching1++; }
-        if (selectMatches.contains("3")) { sumDurations1 += selectProject.getTask(3).getTaskDuration(); amountMatching1++; }
-        if (stopAtProject == 1) { return ((double)sumDurations1 / (double)amountMatching1); } else { sumDurations += sumDurations1; amountMatching += amountMatching1; }
-        
-        selectProject = project2;
-        selectMatches = matches2;
-        if (selectMatches.contains("1")) { sumDurations2 += selectProject.getTask(1).getTaskDuration(); amountMatching2++; }
-        if (selectMatches.contains("2")) { sumDurations2 += selectProject.getTask(2).getTaskDuration(); amountMatching2++; }
-        if (selectMatches.contains("3")) { sumDurations2 += selectProject.getTask(3).getTaskDuration(); amountMatching2++; }
-        if (stopAtProject == 2) { return ((double)sumDurations2 / (double)amountMatching2); } else { sumDurations += sumDurations2; amountMatching += amountMatching2; }
-        
-        selectProject = project3;
-        selectMatches = matches3;
-        if (selectMatches.contains("1")) { sumDurations3 += selectProject.getTask(1).getTaskDuration(); amountMatching3++; }
-        if (selectMatches.contains("2")) { sumDurations3 += selectProject.getTask(2).getTaskDuration(); amountMatching3++; }
-        if (selectMatches.contains("3")) { sumDurations3 += selectProject.getTask(3).getTaskDuration(); amountMatching3++; }
-        if (stopAtProject == 3) { return ((double)sumDurations3 / (double)amountMatching3); } else { sumDurations += sumDurations3; amountMatching += amountMatching3; }
-        
+        double result   = auxCalculateAverageDuration(project1, auxFilterTypes(project1, type), stopAtProject);
+        // Cf. comments within auxCalculateAverageDuration to understand why I am doing these eccentric calculations on the return value.
+        if ((int)(Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) { return result; } else { sumDurations += (int)result; amountMatching++; }
 
-        return ((double)sumDurations / (double)amountMatching);
+        result   = auxCalculateAverageDuration(project2, auxFilterTypes(project2, type), stopAtProject);
+        if ((int)(Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) { return result; } else { sumDurations += (int)result; amountMatching++; }
+
+        result   = auxCalculateAverageDuration(project3, auxFilterTypes(project3, type), stopAtProject);
+        if ((int)(Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) { return result; } else { sumDurations += (int)result; amountMatching++; }
+
+        return ((double) sumDurations / (double) amountMatching);
     }
 
     // Used in dispAverageTypeDurations().
@@ -131,7 +123,8 @@ public class UserInterface {
         System.out.println("\t* Average task duration of logistics tasks is " + auxGetAverageTypeDurations('L', num) + ".");
         System.out.println("\t* Average task duration of support tasks is " + auxGetAverageTypeDurations('S', num) + ".");
     }
-    
+
+
 
     // *** Methods invoked by user input ("Option Methods"). ***
     public static String optionCreateProject(Scanner input, int amountProjects, String IDsProjects) {
@@ -187,7 +180,6 @@ public class UserInterface {
         return "";
     }
 
-
     public static void optionRemoveProject(Scanner input) {
         System.out.println("*** Project Removal Wizard ***");
 
@@ -209,7 +201,6 @@ public class UserInterface {
         System.out.println("ID does not match any known Project ID. Aborting...");
     }
 
-    
     public static void optionCreateTask(Scanner input) {
         System.out.println("*** Task Wizard ***");
         Project certainProject;
@@ -323,6 +314,8 @@ public class UserInterface {
         }
     }
 
+
+
     // *** Display Submethods ***
     // Displaying All Project Details
     public static void dispViewProjects() {
@@ -389,6 +382,7 @@ public class UserInterface {
         auxPrettyAverageTypeDurationsByProject(project2, 2);
         auxPrettyAverageTypeDurationsByProject(project3, 3);
     }
+
 
 
     // *** Main entry method. ***
