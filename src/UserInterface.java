@@ -27,22 +27,30 @@ public class UserInterface {
             if (includeStatus) {
                 System.out.print(", Status: " + task.status());
             }
+            System.out.print("\n");
         }
-        System.out.print("\n");
     }
 
     // Used in optionViewProjects() and dispFilteredTasks().
     private static void auxViewProject(Project project, String chosenTasks) {
         if (project != null) {
             int amountTasks = project.amountTasks();
-            System.out.println("Project ID: " + project.getProjectID() +
-                    ", Project Name: " + project.getProjectName() +
-                    ", Project Type: " + project.getProjectType() +
-                    ", Num of tasks: " + amountTasks);
-            System.out.println("Tasks:");
-            if (chosenTasks.contains("1")) { auxTaskPrettyInfo(project.getTask(1), true); }
-            if (chosenTasks.contains("2")) { auxTaskPrettyInfo(project.getTask(2), true); }
-            if (chosenTasks.contains("3")) { auxTaskPrettyInfo(project.getTask(3), true); }
+            if (amountTasks != 0) {
+                System.out.println("Project ID: " + project.getProjectID() +
+                        ", Project Name: " + project.getProjectName() +
+                        ", Project Type: " + project.getProjectType() +
+                        ", Num of tasks: " + amountTasks);
+                System.out.println("Tasks:");
+                if (chosenTasks.contains("1")) {
+                    auxTaskPrettyInfo(project.getTask(1), true);
+                }
+                if (chosenTasks.contains("2")) {
+                    auxTaskPrettyInfo(project.getTask(2), true);
+                }
+                if (chosenTasks.contains("3")) {
+                    auxTaskPrettyInfo(project.getTask(3), true);
+                }
+            } else { System.out.println("No Tasks to report for Project #" + project.getProjectID() + "."); }
         }
     }
 
@@ -64,11 +72,18 @@ public class UserInterface {
     public static Project auxDialogueGetProject(Scanner input) {
         Project certainProject;
         System.out.print("Enter ID of Project:");
-        int ProjectID = input.nextInt();
-        // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
-        input.nextLine();
-        certainProject = auxGetProjectByID(ProjectID);
-        if (certainProject == null) { System.out.println("ERROR: Entered Project ID does not match any existing Project. Aborting..."); return null; }
+        int ProjectID;
+        while (true) {
+            ProjectID = input.nextInt();
+            // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
+            input.nextLine();
+            certainProject = auxGetProjectByID(ProjectID);
+            if (certainProject == null) {
+                System.out.print("ERROR: Entered Project ID does not match any existing Project. Please try again: ");
+                continue;
+            }
+            break;
+        }
         return certainProject;
     }
 
@@ -124,7 +139,32 @@ public class UserInterface {
         System.out.println("\t* Average task duration of support tasks is " + auxGetAverageTypeDurations('S', num) + ".");
     }
 
-
+    // Multiple overloads of the method to handle different types of data being checked.
+    public static boolean auxCheckInputValid(String data, Scanner input) {
+        if (!input.hasNextLine()) {
+            System.out.print("Value entered was not a valid name. Please try again: ");
+            return true;
+        }
+        if (data.isEmpty()) {
+            System.out.print("Empty input given. Please try again: ");
+            return true;
+        }
+        return false;
+    }
+    public static boolean auxCheckInputValid(int data, Scanner input) {
+        if (!input.hasNextInt()) {
+            System.out.print("Value entered was not a valid number (integer). Please try again: ");
+            return true;
+        }
+        return false;
+    }
+//    public static boolean auxCheckInputValid(double data, Scanner input) {
+//        if (!input.hasNextDouble()) {
+//            System.out.print("Value entered was not a valid (double). Please try again: ");
+//            return true;
+//        }
+//        return false;
+//    }
 
     // *** Methods invoked by user input ("Option Methods"). ***
     public static String optionCreateProject(Scanner input, int amountProjects, String IDsProjects) {
@@ -137,33 +177,49 @@ public class UserInterface {
         }
 
         System.out.print("Enter ID for new Project: ");
-        int ID = input.nextInt();
-        // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
-        input.nextLine();
-        String valueID = String.valueOf(ID);
-        if (IDsProjects.contains(valueID + ",")) {
-            System.out.println("ERROR: Duplicate project ID! Aborting project creation process...");
-            return "";
+        int ID;
+        String valueID;
+        while (true) {
+            ID = input.nextInt();
+            // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
+            input.nextLine();
+            if (auxCheckInputValid(ID, input)) { continue; }
+            valueID = String.valueOf(ID);
+            if (IDsProjects.contains(valueID + ",")) {
+                System.out.print("Project ID already in use. Please try again: ");
+                continue;
+            }
+            break;
         }
 
         System.out.print("Enter name for new project: ");
-        String name = input.nextLine();
+        String name;
+        while (true) {
+           name = input.nextLine();
+           if (auxCheckInputValid(name, input)) { continue; }
+           break;
+        }
 
         System.out.print("Enter type for new project (options: \"small\", \"medium\", or \"large\"): ");
-        String type = input.nextLine();
-        switch(type.toUpperCase()) {
-            case "SMALL":
-                tempProject = new Project(ID, name, "SMALL");
-                break;
-            case "MEDIUM":
-                tempProject = new Project(ID, name, "MEDIUM");
-                break;
-            case "LARGE":
-                tempProject = new Project(ID, name, "LARGE");
-                break;
-            default:
-                System.out.println("ERROR: Unknown project type. Aborting project creation process...");
-                return "";
+        String type;
+        while(true) {
+            type = input.nextLine();
+            if (auxCheckInputValid(type, input)) { continue; }
+            switch (type.toUpperCase()) {
+                case "SMALL":
+                    tempProject = new Project(ID, name, "SMALL");
+                    break;
+                case "MEDIUM":
+                    tempProject = new Project(ID, name, "MEDIUM");
+                    break;
+                case "LARGE":
+                    tempProject = new Project(ID, name, "LARGE");
+                    break;
+                default:
+                    System.out.println("Unknown project type. Please try again: ");
+                    continue;
+            }
+            break;
         }
 
         if (project1 == null) {
@@ -184,9 +240,14 @@ public class UserInterface {
         System.out.println("*** Project Removal Wizard ***");
 
         System.out.print("Please enter ID of Project to be removed: ");
-        int ID = input.nextInt();
-        // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
-        input.nextLine();
+        int ID;
+        while (true) {
+            ID = input.nextInt();
+            // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
+            input.nextLine();
+            if (auxCheckInputValid(ID, input)) { continue; }
+            break;
+        }
 
         if (project1.getProjectID() == ID) {
             project1 = null;
@@ -206,39 +267,67 @@ public class UserInterface {
         Project certainProject;
 
         System.out.print("Enter ID of Project you would like to a create a Task for: ");
-        int ProjectID = input.nextInt();
-        // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
-        input.nextLine();
-        certainProject = auxGetProjectByID(ProjectID);
-        if (certainProject == null) { System.out.println("ERROR: Inputted Project ID does not match any existing Project. Aborting..."); return; }
-
+        int ProjectID;
+        while (true) {
+            ProjectID = input.nextInt();
+            // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
+            input.nextLine();
+            if (auxCheckInputValid(ProjectID, input)) { continue; }
+            certainProject = auxGetProjectByID(ProjectID);
+            if (certainProject == null) {
+                System.out.println("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
+                continue;
+            }
+            break;
+        }
 
         System.out.print("Enter ID for new Task: ");
-        int newID = input.nextInt();
-        input.nextLine();
-        String valueID = String.valueOf(newID);
-        if (certainProject.getAllTaskIDs() != null && certainProject.getAllTaskIDs().contains(valueID + ",")) {
-            System.out.println("ERROR: Duplicate Task ID! Aborting...");
-            return;
+        int newID;
+        while (true) {
+            newID = input.nextInt();
+            input.nextLine();
+            if (auxCheckInputValid(newID, input)) { continue; }
+
+            String valueID = String.valueOf(newID);
+            if (certainProject.getAllTaskIDs() != null && certainProject.getAllTaskIDs().contains(valueID + ",")) {
+                System.out.print("ERROR: Duplicate Task ID! Please try again: ");
+                continue;
+            }
+            break;
         }
 
         System.out.print("Enter a brief description of the new Task: ");
-        String newDescription = input.nextLine();
+        String newDescription;
+        while (true) {
+            newDescription = input.nextLine();
+            if (auxCheckInputValid(newDescription, input)) { continue; }
+            break;
+        }
 
         System.out.print("Enter the Task type ([A]dministrative, [L]ogistics, or [S]upport: ");
-        String newType = input.nextLine().toUpperCase();
-        if (newType.length() != 1) {
-            System.out.println("ERROR: Task type was not specified with a single character. Aborting...");
-            return;
-        }
-        if (!"ALS".contains(newType)) {
-            System.out.println("ERROR: Specified Task type is not [A]dministrative, [L]ogistics, or [S]upport. Aborting...");
-            return;
+        String newType;
+        while (true) {
+            newType = input.nextLine().toUpperCase();
+            if (auxCheckInputValid(newType, input)) { continue; }
+            if (newType.length() != 1) {
+                System.out.print("ERROR: Task type was not specified with a single character. Please try again: ");
+                continue;
+            }
+            if (!"ALS".contains(newType)) {
+                System.out.println("ERROR: Specified Task type is not [A]dministrative, [L]ogistics, or [S]upport. Please try again: ");
+                continue;
+            }
+            break;
         }
 
         System.out.print("Enter estimated or actual type spent on new Task: ");
-        int newDuration = input.nextInt();
-        input.nextLine();
+        int newDuration;
+        while (true) {
+            newDuration = input.nextInt();
+            input.nextLine();
+            if (auxCheckInputValid(newDuration, input)) { continue; }
+            break;
+        }
 
         certainProject.createTask(newID, newDescription, newType, newDuration, false);
     }
@@ -250,18 +339,33 @@ public class UserInterface {
         if (certainProject == null) { return; }
 
         System.out.print("Enter ID of Task to be edited: ");
-        int TaskID = input.nextInt();
-        input.nextLine();
-        certainTask = certainProject.retrieveTaskByID(TaskID);
-        if (certainTask == null) { System.out.println("ERROR: Entered Task ID does not match any existing Task. Aborting..."); return; }
+        int TaskID;
+        while (true) {
+            TaskID = input.nextInt();
+            input.nextLine();
+            if (auxCheckInputValid(TaskID, input)) { continue; }
+
+            certainTask = certainProject.retrieveTaskByID(TaskID);
+            if (certainTask == null) {
+                System.out.print("Entered Task ID does not match any existing Task within selected Project. Please try again: ");
+                continue;
+            }
+            break;
+        }
 
         System.out.print("Would you like to edit the completed status of the selected Task? (currently: " + certainTask.status() + ") [y/n]");
-        String choice = input.nextLine().toLowerCase();
-        if (choice.equals("y")) {
-            certainTask.setCompleted(!certainTask.getCompleted());
-            System.out.print("Status of Task #" + certainTask.getTaskID() + " of Project #" + certainProject.getProjectID() + " is now " + certainTask.status() + ".");
-        } else {
-            System.out.println("Exhausted all attributes of Task to edit. Returning...");
+        String choice;
+        while(true) {
+            choice = input.nextLine().toLowerCase();
+            if (auxCheckInputValid(choice, input)) { continue; }
+
+            if (choice.equals("y")) {
+                certainTask.setCompleted(!certainTask.getCompleted());
+                System.out.print("Status of Task #" + certainTask.getTaskID() + " of Project #" + certainProject.getProjectID() + " is now " + certainTask.status() + ".");
+            } else {
+                System.out.println("Exhausted all attributes of Task to edit. Returning...");
+            }
+            return;
         }
     }
 
@@ -270,19 +374,26 @@ public class UserInterface {
         if (certainProject == null) { return; }
 
         System.out.print("Please enter ID of Task to be removed: ");
-        int TaskID = input.nextInt();
-        input.nextLine();
+        int TaskID;
+        while (true) {
+            TaskID = input.nextInt();
+            input.nextLine();
+            if (auxCheckInputValid(TaskID, input)) { continue; }
+            break;
+        }
+
         certainProject.deleteTask(TaskID);
     }
 
     public static void optionDisplay(Scanner input) {
         String options = """ 
                         Options for Display:
-                        \t *0: Exit to Project Management System.
-                        \t *1: All Project details.
-                        \t *2: Completed Tasks within Project.
-                        \t *3: Tasks of all Projects filtered by type.
-                        \t *4: Average duration of Tasks filtered by type.
+                        \t *0: Print this dialogue again.
+                        \t *1: Exit to Project Management System.
+                        \t *2: All Project details.
+                        \t *3: Completed Tasks within Project.
+                        \t *4: Tasks of all Projects filtered by type.
+                        \t *5: Average duration of Tasks filtered by type.
                         """;
 
         System.out.println("*** Display Wizard ***");
@@ -293,19 +404,22 @@ public class UserInterface {
             int line = input.nextInt();
             input.nextLine();
             switch (line) {
-                case 1:
-                    dispViewProjects();
+                case 0:
+                    System.out.print(options);
                     break;
                 case 2:
-                    dispCompleteTasks(input);
+                    dispViewProjects();
                     break;
                 case 3:
-                    dispFilteredTasks(input);
+                    dispCompleteTasks(input);
                     break;
                 case 4:
+                    dispFilteredTasks(input);
+                    break;
+                case 5:
                     dispAverageTypeDurations();
                     break;
-                case 0:
+                case 1:
                     return;
                 default:
                     System.out.println("Unknown option.");
@@ -354,7 +468,7 @@ public class UserInterface {
         System.out.print("Enter the type to filter by ([A]dministrative, [L]ogistical, or [S]upport): ");
         String filter = input.nextLine();
 
-        if (filter.length() == 1 || !Task.permittedTypes.contains(filter)) {
+        if (filter.length() != 1 || !Task.permittedTypes.contains(filter.toUpperCase())) {
             System.out.print("ERROR: Invalid filter type entered. Aborting...");
             return;
         }
@@ -394,7 +508,7 @@ public class UserInterface {
                 \t * H: help
                 \t * Q: quit\s
                 \t* CP: create project
-                \t* DP: display info
+                \t* D: display info
                 \t* RP: remove project
                 \t* CT: create task
                 \t* ET: edit task
