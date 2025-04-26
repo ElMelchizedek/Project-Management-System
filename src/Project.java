@@ -59,7 +59,7 @@ public class Project {
     public void createTask(int ID, String description, String type, int duration, boolean completed) {
         if (task1 == null) {
             task1 = new Task(ID, description, type, duration, completed, this);
-        } else if ((task2 == null) && (projectType.equalsIgnoreCase("MEDIUM"))) {
+        } else if ((task2 == null) && (!projectType.equalsIgnoreCase("SMALL"))) {
             task2 = new Task(ID, description, type, duration, completed, this);
         } else if ((task3 == null) && (projectType.equalsIgnoreCase("LARGE"))) {
             task3 = new Task(ID, description, type, duration, completed, this);

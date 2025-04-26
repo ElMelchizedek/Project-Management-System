@@ -1,6 +1,12 @@
 import java.util.Scanner;
 
 public class UserInterface {
+    /*
+    !!! GLOBAL VARIABLES !!!
+     */
+    // Debug Toggle
+    private static boolean debug = true;
+
     // *** Private variables to be accessed and manipulated via setters and getters. ***
     private static Project project1 = null;
     private static Project project2 = null;
@@ -24,9 +30,36 @@ public class UserInterface {
             "self-sufficient and has no significance beyond its own self-\n" +
             "development. So, according to Hegel, God is dead and the only\n" +
             "reality is self-consciousness.\n +" +
-            "(Bruno Bauer and the negativity of self-consciousness";
+            "(Bruno Bauer and the negativity of self-consciousness)";
+
+    /*
+    !!! METHODS !!!
+     */
+
+    // *** Debug Methods ***
+    private static String debugInitialise(String IDsProjects) {
+        // Initialise Projects.
+        System.out.println("DEBUG: INITIALISING");
+        project1 = new Project(1, "Borges", "SMALL");
+        IDsProjects = auxAssignProject(1, "SMALL", "1", IDsProjects);
+        project2 = new Project(2, "Spencer", "MEDIUM");
+        IDsProjects = auxAssignProject(2, "MEDIUM", "2", IDsProjects);
+        project3 = new Project(3, "Wolfe", "LARGE");
+        IDsProjects = auxAssignProject(3, "LARGE", "3", IDsProjects);
+
+        // Generate Tasks.
+        project1.createTask(11, "Hegel", "A", 1, false);
+        project2.createTask(21, "Bauer", "A", 2, false);
+        project2.createTask(22, "Feurbach", "L", 3, false);
+        project3.createTask(31, "Marx", "A", 4, false);
+        project3.createTask(32, "Engels", "L", 5, false);
+        project3.createTask(33, "Lenin", "S", 6, false);
+
+        return IDsProjects;
+    }
 
     // *** Auxiliary methods. ***
+
     // Used in optionCreateProject().
     private static String auxAssignProject(int ID, String type, String valueID, String IDsProjects) {
         System.out.println("Created Project #" + ID + " of type " + type + ".");
@@ -190,11 +223,12 @@ public class UserInterface {
 
 
     // *** Methods invoked by user input ("Option Methods"). ***
+
     public static String optionCreateProject(Scanner input, int amountProjects, String IDsProjects) {
         System.out.println("*** Project Wizard ***");
         Project tempProject;
 
-        if (amountProjects >= 3) {
+        if (amountProjects > 3) {
             System.out.println("ERROR: Maximum amount of concurrent projects already reached! Aborting project creation process...");
             return "";
         }
@@ -448,6 +482,7 @@ public class UserInterface {
 
 
     // *** Display Submethods ***
+
     // Displaying All Project Details
     public static void dispViewProjects() {
         if (project1 != null) {
@@ -472,9 +507,9 @@ public class UserInterface {
         Task task1 = certainProject.getTask(1);
         Task task2 = certainProject.getTask(2);
         Task task3 = certainProject.getTask(3);
-        if (task1.getCompleted()) { auxTaskPrettyInfo(task1, false); }
-        if (task2.getCompleted()) { auxTaskPrettyInfo(task2, false); }
-        if (task3.getCompleted()) { auxTaskPrettyInfo(task3, false); }
+        if (task1 != null && task1.getCompleted()) { auxTaskPrettyInfo(task1, false); }
+        if (task2 != null && task2.getCompleted()) { auxTaskPrettyInfo(task2, false); }
+        if (task3 != null && task3.getCompleted()) { auxTaskPrettyInfo(task3, false); }
 
     }
 
@@ -537,6 +572,12 @@ public class UserInterface {
                 """;
 
         Scanner input = new Scanner(System.in);
+
+        // Debug stuff
+        if (debug) {
+            IDsProjects = debugInitialise(IDsProjects);
+            amountProjects = 3;
+        }
 
         System.out.println("Project Management System");
         System.out.print(help);
