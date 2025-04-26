@@ -106,9 +106,15 @@ public class UserInterface {
     // Used in dispFilteredTasks() and auxGetAverageTypeDurations().
     public static String auxFilterTypes(Project project, char type) {
         String matchingTasks = "";
-        if (project.getTask(1) != null && project.getTask(1).getTaskType() == type) { matchingTasks = matchingTasks.concat("1"); }
-        if (project.getTask(2) != null && project.getTask(2).getTaskType() == type) { matchingTasks = matchingTasks.concat("2"); }
-        if (project.getTask(3) != null &&  project.getTask(3).getTaskType() == type) { matchingTasks = matchingTasks.concat("3"); }
+
+        if (project != null) {
+            for (int i = 1; i <= 3; i++) {
+                if (project.getTask(i) != null
+                && project.getTask(1).getTaskType() == type) {
+                   matchingTasks = matchingTasks.concat(String.valueOf(i));
+                }
+            }
+        }
 
         return matchingTasks;
     }
@@ -180,13 +186,8 @@ public class UserInterface {
         input.nextLine();
         return value;
     }
-//    public static boolean auxCheckInputValid(double data, Scanner input) {
-//        if (!input.hasNextDouble()) {
-//            System.out.print("Value entered was not a valid (double). Please try again: ");
-//            return true;
-//        }
-//        return false;
-//    }
+
+
 
     // *** Methods invoked by user input ("Option Methods"). ***
     public static String optionCreateProject(Scanner input, int amountProjects, String IDsProjects) {
@@ -482,20 +483,24 @@ public class UserInterface {
         String matchingTasks;
         
         System.out.print("Enter the type to filter by ([A]dministrative, [L]ogistical, or [S]upport): ");
-        String filter = input.nextLine();
-
-        if (filter.length() != 1 || !Task.permittedTypes.contains(filter.toUpperCase())) {
-            System.out.print("ERROR: Invalid filter type entered. Aborting...");
-            return;
+        String filter;
+        while (true) {
+            filter = auxCheckInputValid("", input);
+            if (filter.equals(SECERT_STRING)) { continue; }
+            if (filter.length() != 1 || !Task.permittedTypes.contains(filter.toUpperCase())) {
+                System.out.print("ERROR: Invalid filter type entered. Please try again: ");
+                continue;
+            }
+            break;
         }
-    
-        matchingTasks = auxFilterTypes(project1, filter.charAt(0));
+
+        matchingTasks = auxFilterTypes(project1, filter.toUpperCase().charAt(0));
         auxViewProject(project1, matchingTasks);
         System.out.println("--------------------------------------------------------------------------------------------");
-        matchingTasks = auxFilterTypes(project2, filter.charAt(0));
+        matchingTasks = auxFilterTypes(project2, filter.toUpperCase().charAt(0));
         auxViewProject(project2, matchingTasks);
         System.out.println("--------------------------------------------------------------------------------------------");
-        matchingTasks = auxFilterTypes(project3, filter.charAt(0));
+        matchingTasks = auxFilterTypes(project3, filter.toUpperCase().charAt(0));
         auxViewProject(project3, matchingTasks);
     }
 
