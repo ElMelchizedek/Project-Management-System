@@ -9,6 +9,22 @@ public class UserInterface {
     // Constant needed for auxCalculateAverageDuration().
     public static final double SECRET_NUMBER = 100000000;
     public static final double SECRET_DIGITS = 9;
+    // Constant needed for auxCheckInputValid(String). Pay no attention to its contents.
+    public static final String SECERT_STRING = "Hegel's criticism of the 'sentimental religion' of\n" +
+            "Jacobi or Schleiermacher was misleading: he accused it of\n" +
+            "subjectivism, as though he himself were a champion of the\n" +
+            "reality of God's existence, but this was quite untrue. By represent-\n" +
+            "ing the finite spirit as a manifestation of universal spirit, Hegel\n" +
+            "made the latter a projection of historical self-consciousness, while\n" +
+            "infinity appeared as merely the self-negation of finitude—i.e.\n" +
+            "God, in the last analysis, is merely a creation of the human ego,\n" +
+            "which with diabolic pride lays claim to almighty power. Hegel's\n" +
+            "'world spirit', too, acquires reality only thanks to the operation\n" +
+            "of human historical self-consciousness. Human history is thus\n" +
+            "self-sufficient and has no significance beyond its own self-\n" +
+            "development. So, according to Hegel, God is dead and the only\n" +
+            "reality is self-consciousness.\n +" +
+            "(Bruno Bauer and the negativity of self-consciousness";
 
     // *** Auxiliary methods. ***
     // Used in optionCreateProject().
@@ -90,9 +106,9 @@ public class UserInterface {
     // Used in dispFilteredTasks() and auxGetAverageTypeDurations().
     public static String auxFilterTypes(Project project, char type) {
         String matchingTasks = "";
-        if (project.getTask(1).getTaskType() == type) { matchingTasks = matchingTasks.concat("1"); }
-        if (project.getTask(2).getTaskType() == type) { matchingTasks = matchingTasks.concat("2"); }
-        if (project.getTask(3).getTaskType() == type) { matchingTasks = matchingTasks.concat("3"); }
+        if (project.getTask(1) != null && project.getTask(1).getTaskType() == type) { matchingTasks = matchingTasks.concat("1"); }
+        if (project.getTask(2) != null && project.getTask(2).getTaskType() == type) { matchingTasks = matchingTasks.concat("2"); }
+        if (project.getTask(3) != null &&  project.getTask(3).getTaskType() == type) { matchingTasks = matchingTasks.concat("3"); }
 
         return matchingTasks;
     }
@@ -140,23 +156,29 @@ public class UserInterface {
     }
 
     // Multiple overloads of the method to handle different types of data being checked.
-    public static boolean auxCheckInputValid(String data, Scanner input) {
+    // Yes data is a redundant variable that is unused, but I don't know how to make a method have a generic return
+    // type, so I'm just going to leave them in there.
+    public static String auxCheckInputValid(String data, Scanner input) {
         if (!input.hasNextLine()) {
             System.out.print("Value entered was not a valid name. Please try again: ");
-            return true;
+            return SECERT_STRING;
         }
-        if (data.isEmpty()) {
+        String value = input.nextLine();
+        if (value.isEmpty()) {
             System.out.print("Empty input given. Please try again: ");
-            return true;
+            return SECERT_STRING;
         }
-        return false;
+        return value;
     }
-    public static boolean auxCheckInputValid(int data, Scanner input) {
+    public static int auxCheckInputValid(int data, Scanner input) {
         if (!input.hasNextInt()) {
             System.out.print("Value entered was not a valid number (integer). Please try again: ");
-            return true;
+            return -1;
         }
-        return false;
+        int value = input.nextInt();
+        // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
+        input.nextLine();
+        return value;
     }
 //    public static boolean auxCheckInputValid(double data, Scanner input) {
 //        if (!input.hasNextDouble()) {
@@ -180,10 +202,8 @@ public class UserInterface {
         int ID;
         String valueID;
         while (true) {
-            ID = input.nextInt();
-            // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
-            input.nextLine();
-            if (auxCheckInputValid(ID, input)) { continue; }
+            ID = auxCheckInputValid(0, input);
+            if (ID == -1) { continue; }
             valueID = String.valueOf(ID);
             if (IDsProjects.contains(valueID + ",")) {
                 System.out.print("Project ID already in use. Please try again: ");
@@ -195,16 +215,16 @@ public class UserInterface {
         System.out.print("Enter name for new project: ");
         String name;
         while (true) {
-           name = input.nextLine();
-           if (auxCheckInputValid(name, input)) { continue; }
+           name = auxCheckInputValid("", input);
+           if (name.equals(SECERT_STRING)) { continue; }
            break;
         }
 
         System.out.print("Enter type for new project (options: \"small\", \"medium\", or \"large\"): ");
         String type;
         while(true) {
-            type = input.nextLine();
-            if (auxCheckInputValid(type, input)) { continue; }
+            type = auxCheckInputValid("", input);
+            if (type.equals(SECERT_STRING)) { continue; }
             switch (type.toUpperCase()) {
                 case "SMALL":
                     tempProject = new Project(ID, name, "SMALL");
@@ -242,10 +262,8 @@ public class UserInterface {
         System.out.print("Please enter ID of Project to be removed: ");
         int ID;
         while (true) {
-            ID = input.nextInt();
-            // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
-            input.nextLine();
-            if (auxCheckInputValid(ID, input)) { continue; }
+            ID = auxCheckInputValid(0, input);
+            if (ID == -1) { continue; }
             break;
         }
 
@@ -269,10 +287,8 @@ public class UserInterface {
         System.out.print("Enter ID of Project you would like to a create a Task for: ");
         int ProjectID;
         while (true) {
-            ProjectID = input.nextInt();
-            // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
-            input.nextLine();
-            if (auxCheckInputValid(ProjectID, input)) { continue; }
+            ProjectID = auxCheckInputValid(0, input);
+            if (ProjectID == -1) { continue; }
             certainProject = auxGetProjectByID(ProjectID);
             if (certainProject == null) {
                 System.out.println("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
@@ -284,9 +300,8 @@ public class UserInterface {
         System.out.print("Enter ID for new Task: ");
         int newID;
         while (true) {
-            newID = input.nextInt();
-            input.nextLine();
-            if (auxCheckInputValid(newID, input)) { continue; }
+            newID = auxCheckInputValid(0, input);
+            if (newID == -1) { continue; }
 
             String valueID = String.valueOf(newID);
             if (certainProject.getAllTaskIDs() != null && certainProject.getAllTaskIDs().contains(valueID + ",")) {
@@ -299,16 +314,17 @@ public class UserInterface {
         System.out.print("Enter a brief description of the new Task: ");
         String newDescription;
         while (true) {
-            newDescription = input.nextLine();
-            if (auxCheckInputValid(newDescription, input)) { continue; }
+            newDescription = auxCheckInputValid("", input);
+            if (newDescription.equals(SECERT_STRING)) { continue; }
             break;
         }
 
         System.out.print("Enter the Task type ([A]dministrative, [L]ogistics, or [S]upport: ");
         String newType;
         while (true) {
-            newType = input.nextLine().toUpperCase();
-            if (auxCheckInputValid(newType, input)) { continue; }
+            newType = auxCheckInputValid("", input);
+            if (newType.equals(SECERT_STRING)) { continue; }
+            newType = newType.toUpperCase();
             if (newType.length() != 1) {
                 System.out.print("ERROR: Task type was not specified with a single character. Please try again: ");
                 continue;
@@ -323,9 +339,8 @@ public class UserInterface {
         System.out.print("Enter estimated or actual type spent on new Task: ");
         int newDuration;
         while (true) {
-            newDuration = input.nextInt();
-            input.nextLine();
-            if (auxCheckInputValid(newDuration, input)) { continue; }
+            newDuration = auxCheckInputValid(0, input);
+            if (newDuration == -1) { continue; }
             break;
         }
 
@@ -341,9 +356,8 @@ public class UserInterface {
         System.out.print("Enter ID of Task to be edited: ");
         int TaskID;
         while (true) {
-            TaskID = input.nextInt();
-            input.nextLine();
-            if (auxCheckInputValid(TaskID, input)) { continue; }
+            TaskID = auxCheckInputValid(0, input);
+            if (TaskID == -1) { continue; }
 
             certainTask = certainProject.retrieveTaskByID(TaskID);
             if (certainTask == null) {
@@ -356,12 +370,15 @@ public class UserInterface {
         System.out.print("Would you like to edit the completed status of the selected Task? (currently: " + certainTask.status() + ") [y/n]");
         String choice;
         while(true) {
-            choice = input.nextLine().toLowerCase();
-            if (auxCheckInputValid(choice, input)) { continue; }
+            choice = auxCheckInputValid("", input);
+            if (choice.equals(SECERT_STRING)) { continue; }
+            choice = choice.toLowerCase();
 
             if (choice.equals("y")) {
                 certainTask.setCompleted(!certainTask.getCompleted());
-                System.out.print("Status of Task #" + certainTask.getTaskID() + " of Project #" + certainProject.getProjectID() + " is now " + certainTask.status() + ".");
+                System.out.print("Status of Task #" + certainTask.getTaskID()
+                        + " of Project #" + certainProject.getProjectID()
+                        + " is now " + certainTask.status() + ".");
             } else {
                 System.out.println("Exhausted all attributes of Task to edit. Returning...");
             }
@@ -376,9 +393,8 @@ public class UserInterface {
         System.out.print("Please enter ID of Task to be removed: ");
         int TaskID;
         while (true) {
-            TaskID = input.nextInt();
-            input.nextLine();
-            if (auxCheckInputValid(TaskID, input)) { continue; }
+            TaskID = auxCheckInputValid(0, input);
+            if (TaskID == -1) { continue; }
             break;
         }
 

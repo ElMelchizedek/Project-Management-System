@@ -10,7 +10,7 @@ public class Project {
 
     // Internal variables.
     private String allTaskIDs;
-    public static final String permittedTypes = "SMALLMEDIUMLARGE";
+    private final String permittedTypes = "SMALLMEDIUMLARGE";
 
     // Constructor.
     public Project(int ID, String name, String type) {
