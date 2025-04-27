@@ -46,12 +46,10 @@ public class Project {
             System.out.println("ERROR: Specified Task Type is not permitted!");
             return;
         }
-        if (type.equals("SMALL")) {
-            this.projectType = "Small";
-        } else if (type.equals("MEDIUM")) {
-            this.projectType = "Medium";
-        } else if (type.equals("LARGE")) {
-            this.projectType = "Large";
+        switch (type) {
+            case "SMALL" -> this.projectType = "Small";
+            case "MEDIUM" -> this.projectType = "Medium";
+            case "LARGE" -> this.projectType = "Large";
         }
     }
 
@@ -69,7 +67,6 @@ public class Project {
         }
 
         System.out.println("Created Task #" + ID + " of type " + type + " lasting " + duration + "h, assigned to Project #" + projectID + ".");
-        return;
     }
     public void addTaskID(String ID) {
         if (this.allTaskIDs != null) {
@@ -91,23 +88,7 @@ public class Project {
             System.out.println("ERROR: Invalid Task ID used to request deletion from Project #" + this.projectID + "!");
             return;
         }
-        System.out.println("Task #" + String.valueOf(ID) + " of Project #" + this.projectID + " deleted.");
-        return;
-    }
-
-    public void markTaskComplete(int ID) {
-        if ((task1 != null) && (task1.getTaskID() == ID)) {
-            task1.setCompleted(true);
-        } else if ((task2 != null) && (task2.getTaskID() == ID)) {
-            task2.setCompleted(true);
-        } else if ((task3 != null) && (task3.getTaskID() == ID)) {
-            task3.setCompleted(true);
-        } else {
-            System.out.println("ERROR: Invalid Task ID used to request marking of completion from Project #" + this.projectID + "!");
-            return;
-        }
-        System.out.println("Task #" + String.valueOf(ID) + " of Project #" + this.projectID + " marked completed.");
-        return;
+        System.out.println("Task #" + ID + " of Project #" + this.projectID + " deleted.");
     }
 
     public int amountTasks() {

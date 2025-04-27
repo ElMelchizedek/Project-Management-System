@@ -40,7 +40,7 @@ public class Task {
             System.out.println("ERROR: Task Type string is not of length 1.");
             return;
         }
-        if (!this.permittedTypes.contains(type)) {
+        if (!permittedTypes.contains(type)) {
             System.out.println("ERROR: Task Type string is not either \"A\", \"L\", or \"S\".");
         }
 

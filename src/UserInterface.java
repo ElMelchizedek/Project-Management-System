@@ -5,7 +5,7 @@ public class UserInterface {
     !!! GLOBAL VARIABLES !!!
      */
     // Debug Toggle
-    private static boolean debug = true;
+    private static final boolean debug = true;
 
     // *** Private variables to be accessed and manipulated via setters and getters. ***
     private static Project project1 = null;
@@ -14,23 +14,24 @@ public class UserInterface {
 
     // Constant needed for auxCalculateAverageDuration().
     public static final double SECRET_NUMBER = 100000000;
-    public static final double SECRET_DIGITS = 9;
     // Constant needed for auxCheckInputValid(String). Pay no attention to its contents.
-    public static final String SECERT_STRING = "Hegel's criticism of the 'sentimental religion' of\n" +
-            "Jacobi or Schleiermacher was misleading: he accused it of\n" +
-            "subjectivism, as though he himself were a champion of the\n" +
-            "reality of God's existence, but this was quite untrue. By represent-\n" +
-            "ing the finite spirit as a manifestation of universal spirit, Hegel\n" +
-            "made the latter a projection of historical self-consciousness, while\n" +
-            "infinity appeared as merely the self-negation of finitude—i.e.\n" +
-            "God, in the last analysis, is merely a creation of the human ego,\n" +
-            "which with diabolic pride lays claim to almighty power. Hegel's\n" +
-            "'world spirit', too, acquires reality only thanks to the operation\n" +
-            "of human historical self-consciousness. Human history is thus\n" +
-            "self-sufficient and has no significance beyond its own self-\n" +
-            "development. So, according to Hegel, God is dead and the only\n" +
-            "reality is self-consciousness.\n +" +
-            "(Bruno Bauer and the negativity of self-consciousness)";
+    public static final String SECERT_STRING = """
+            Hegel's criticism of the 'sentimental religion' of
+            Jacobi or Schleiermacher was misleading: he accused it of
+            subjectivism, as though he himself were a champion of the
+            reality of God's existence, but this was quite untrue. By represent-
+            ing the finite spirit as a manifestation of universal spirit, Hegel
+            made the latter a projection of historical self-consciousness, while
+            infinity appeared as merely the self-negation of finitude—i.e.
+            God, in the last analysis, is merely a creation of the human ego,
+            which with diabolic pride lays claim to almighty power. Hegel's
+            'world spirit', too, acquires reality only thanks to the operation
+            of human historical self-consciousness. Human history is thus
+            self-sufficient and has no significance beyond its own self-
+            development. So, according to Hegel, God is dead and the only
+            reality is self-consciousness.
+             +\
+            (Bruno Bauer and the negativity of self-consciousness)""";
 
     /*
     !!! METHODS !!!
@@ -67,7 +68,7 @@ public class UserInterface {
     }
 
     // Used in auxViewProject().
-    public static void auxTaskPrettyInfo(Task task, boolean includeStatus) {
+    private static void auxTaskPrettyInfo(Task task, boolean includeStatus) {
         if (task != null) {
             System.out.print("\t* Task ID: " + task.getTaskID() +
                     ", Description: " + task.getDescription() +
@@ -104,7 +105,7 @@ public class UserInterface {
     }
 
     // Used in optionCreateTask().
-    public static Project auxGetProjectByID(int ProjectID) {
+    private static Project auxGetProjectByID(int ProjectID) {
         Project certainProject = null;
         if (project1 != null && project1.getProjectID() == ProjectID) {
             certainProject = project1;
@@ -118,7 +119,7 @@ public class UserInterface {
     }
 
     // Used in optionEditTask(), optionRemoveTask(), and dispCompleteTasks().
-    public static Project auxDialogueGetProject(Scanner input) {
+    private static Project auxDialogueGetProject(Scanner input) {
         Project certainProject;
         System.out.print("Enter ID of Project:");
         int ProjectID;
@@ -137,7 +138,7 @@ public class UserInterface {
     }
 
     // Used in dispFilteredTasks() and auxGetAverageTypeDurations().
-    public static String auxFilterTypes(Project project, char type) {
+    private static String auxFilterTypes(Project project, char type) {
         String matchingTasks = "";
 
         if (project != null) {
@@ -153,7 +154,7 @@ public class UserInterface {
     }
 
     // Used in auxGetAverageTypeDurations().
-    public static double auxCalculateAverageDuration(Project project, String matches, int stopAtProject) {
+    private static double auxCalculateAverageDuration(Project project, String matches, int stopAtProject) {
         int sumDurations = 0;
         int amountMatching = 0;
         if (matches.contains("1")) { sumDurations += project.getTask(1).getTaskDuration(); amountMatching++; }
@@ -168,7 +169,7 @@ public class UserInterface {
         } else { return sumDurations; }
     }
     // Used in dispAverageTaskDurations() and auxPrettyAverageTypeDurationsByProject().
-    public static double auxGetAverageTypeDurations(char type, int stopAtProject) {
+    private static double auxGetAverageTypeDurations(char type, int stopAtProject) {
         int amountMatching = 0;
         int sumDurations = 0;
 
@@ -179,7 +180,7 @@ public class UserInterface {
         if (stopAtProject == 1) {
             return (result / SECRET_NUMBER);
         }
-        if (!matches.equals("")) {
+        if (!matches.isEmpty()) {
 //            if ((int) (Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) {
 //                return (result / SECRET_NUMBER);
 //            } else {
@@ -193,7 +194,7 @@ public class UserInterface {
         if (stopAtProject == 2) {
             return (result / SECRET_NUMBER);
         }
-        if (!matches.equals("")) {
+        if (!matches.isEmpty()) {
 //            if ((int) (Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) {
 //                return (result / SECRET_NUMBER);
 //            } else {
@@ -207,7 +208,7 @@ public class UserInterface {
         if (stopAtProject == 3) {
             return (result / SECRET_NUMBER);
         }
-        if (!matches.equals("")) {
+        if (!matches.isEmpty()) {
 //            if ((int) (Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) {
 //                return (result / SECRET_NUMBER);
 //            } else {
@@ -220,7 +221,7 @@ public class UserInterface {
     }
 
     // Used in dispAverageTypeDurations().
-    public static void auxPrettyAverageTypeDurationsByProject(Project project, int num) {
+    private static void auxPrettyAverageTypeDurationsByProject(Project project, int num) {
         System.out.println("Project ID " + project.getProjectID() + ":");
         System.out.println("\t* Average task duration of administrative tasks is " + auxGetAverageTypeDurations('A', num) + ".");
         System.out.println("\t* Average task duration of logistics tasks is " + auxGetAverageTypeDurations('L', num) + ".");
@@ -230,7 +231,7 @@ public class UserInterface {
     // Multiple overloads of the method to handle different types of data being checked.
     // Yes data is a redundant variable that is unused, but I don't know how to make a method have a generic return
     // type, so I'm just going to leave them in there.
-    public static String auxCheckInputValid(String data, Scanner input) {
+    private static String auxCheckInputValid(String data, Scanner input) {
         if (!input.hasNextLine()) {
             System.out.print("Value entered was not a valid name. Please try again: ");
             return SECERT_STRING;
@@ -242,7 +243,7 @@ public class UserInterface {
         }
         return value;
     }
-    public static int auxCheckInputValid(int data, Scanner input) {
+    private static int auxCheckInputValid(int data, Scanner input) {
         if (!input.hasNextInt()) {
             System.out.print("Value entered was not a valid number (integer). Please try again: ");
             return -1;
@@ -258,7 +259,7 @@ public class UserInterface {
     // *** Display Submethods ***
 
     // Displaying All Project Details
-    public static void dispViewProjects() {
+    private static void dispViewProjects() {
         if (project1 != null) {
             auxViewProject(project1, "123");
         }
@@ -273,7 +274,7 @@ public class UserInterface {
     }
 
     // Displaying Completed Tasks
-    public static void dispCompleteTasks(Scanner input) {
+    private static void dispCompleteTasks(Scanner input) {
         Project certainProject = auxDialogueGetProject(input);
         if (certainProject == null) { return; }
 
@@ -288,7 +289,7 @@ public class UserInterface {
     }
 
     // Filtering Tasks by Type
-    public static void dispFilteredTasks(Scanner input) {
+    private static void dispFilteredTasks(Scanner input) {
         String matchingTasks;
 
         System.out.print("Enter the type to filter by ([A]dministrative, [L]ogistical, or [S]upport): ");
@@ -314,7 +315,7 @@ public class UserInterface {
     }
 
     // Average Task Type Durations
-    public static void dispAverageTypeDurations() {
+    private static void dispAverageTypeDurations() {
         System.out.println("---Average Task Duration---");
         System.out.println("Average task duration of all task types across all projects:");
         System.out.println("\t* Average task duration of all administrative tasks is " + auxGetAverageTypeDurations('A', 0) + " hours.");
@@ -331,7 +332,7 @@ public class UserInterface {
 
     // *** Methods invoked by user input ("Option Methods"). ***
 
-    public static String optionCreateProject(Scanner input, int amountProjects, String IDsProjects) {
+    private static String optionCreateProject(Scanner input, int amountProjects, String IDsProjects) {
         System.out.println("*** Project Wizard ***");
         Project tempProject;
 
@@ -398,7 +399,7 @@ public class UserInterface {
         return "";
     }
 
-    public static void optionRemoveProject(Scanner input) {
+    private static void optionRemoveProject(Scanner input) {
         System.out.println("*** Project Removal Wizard ***");
 
         System.out.print("Please enter ID of Project to be removed: ");
@@ -422,7 +423,7 @@ public class UserInterface {
         System.out.println("ID does not match any known Project ID. Aborting...");
     }
 
-    public static void optionCreateTask(Scanner input) {
+    private static void optionCreateTask(Scanner input) {
         System.out.println("*** Task Wizard ***");
         Project certainProject;
 
@@ -490,7 +491,7 @@ public class UserInterface {
     }
 
     // Really just the "mark task completed" function.
-    public static void optionEditTask(Scanner input) {
+    private static void optionEditTask(Scanner input) {
         Task certainTask;
         Project certainProject = auxDialogueGetProject(input);
         if (certainProject == null) { return; }
@@ -528,7 +529,7 @@ public class UserInterface {
         }
     }
 
-    public static void optionRemoveTask(Scanner input) {
+    private static void optionRemoveTask(Scanner input) {
         Project certainProject = auxDialogueGetProject(input);
         if (certainProject == null) { return; }
 
@@ -543,7 +544,7 @@ public class UserInterface {
         certainProject.deleteTask(TaskID);
     }
 
-    public static void optionDisplay(Scanner input) {
+    private static void optionDisplay(Scanner input) {
         String options = """ 
                         Options for Display:
                         \t *0: Print this dialogue again.
@@ -559,9 +560,8 @@ public class UserInterface {
 
         while (true) {
             System.out.print("? ");
-            // TODO: Check to make sure integer is integer.
-            int line = input.nextInt();
-            input.nextLine();
+            int line = auxCheckInputValid(0, input);
+            if (line == -1) { continue; }
             switch (line) {
                 case 0:
                     System.out.print(options);
@@ -618,7 +618,8 @@ public class UserInterface {
 
         while (true) {
             System.out.print("> ");
-            String line = input.nextLine();
+            String line = auxCheckInputValid("", input);
+            if (line.equals(SECERT_STRING)) { continue; }
             if (line != null) {
                 switch (line.toUpperCase()) {
                     // Help.
