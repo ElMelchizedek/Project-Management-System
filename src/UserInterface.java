@@ -143,7 +143,7 @@ public class UserInterface {
         if (project != null) {
             for (int i = 1; i <= 3; i++) {
                 if (project.getTask(i) != null
-                && project.getTask(1).getTaskType() == type) {
+                && project.getTask(i).getTaskType() == type) {
                    matchingTasks = matchingTasks.concat(String.valueOf(i));
                 }
             }
@@ -163,7 +163,7 @@ public class UserInterface {
         // outcomes whilst not being able to have multiple return types for the method.
         // To differentiate I do this by multiplying the number by a defined power of 10 that is then checked by the
         // calling function to figure out what kind of return value it is from this function.
-        if (stopAtProject == 1) {
+        if (stopAtProject != 0) {
             return (((double)sumDurations / (double)amountMatching) * SECRET_NUMBER);
         } else { return sumDurations; }
     }
@@ -173,15 +173,48 @@ public class UserInterface {
         int sumDurations = 0;
 
         // I wish I had arrays right now.
-        double result   = auxCalculateAverageDuration(project1, auxFilterTypes(project1, type), stopAtProject);
+        String matches = auxFilterTypes(project1, type);
+        double result   = auxCalculateAverageDuration(project1, matches, stopAtProject);
         // Cf. comments within auxCalculateAverageDuration to understand why I am doing these eccentric calculations on the return value.
-        if ((int)(Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) { return result; } else { sumDurations += (int)result; amountMatching++; }
+        if (stopAtProject == 1) {
+            return (result / SECRET_NUMBER);
+        }
+        if (!matches.equals("")) {
+//            if ((int) (Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) {
+//                return (result / SECRET_NUMBER);
+//            } else {
+                sumDurations += (int) result;
+                amountMatching += matches.length();
+//            }
+        }
 
-        result   = auxCalculateAverageDuration(project2, auxFilterTypes(project2, type), stopAtProject);
-        if ((int)(Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) { return result; } else { sumDurations += (int)result; amountMatching++; }
+        matches = auxFilterTypes(project2, type);
+        result          = auxCalculateAverageDuration(project2, matches, stopAtProject);
+        if (stopAtProject == 2) {
+            return (result / SECRET_NUMBER);
+        }
+        if (!matches.equals("")) {
+//            if ((int) (Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) {
+//                return (result / SECRET_NUMBER);
+//            } else {
+                sumDurations += (int) result;
+                amountMatching += matches.length();
+//            }
+        }
 
-        result   = auxCalculateAverageDuration(project3, auxFilterTypes(project3, type), stopAtProject);
-        if ((int)(Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) { return result; } else { sumDurations += (int)result; amountMatching++; }
+        matches = auxFilterTypes(project3, type);
+        result          = auxCalculateAverageDuration(project3, matches, stopAtProject);
+        if (stopAtProject == 3) {
+            return (result / SECRET_NUMBER);
+        }
+        if (!matches.equals("")) {
+//            if ((int) (Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) {
+//                return (result / SECRET_NUMBER);
+//            } else {
+                sumDurations += (int) result;
+                amountMatching += matches.length();
+//            }
+        }
 
         return ((double) sumDurations / (double) amountMatching);
     }
@@ -218,6 +251,80 @@ public class UserInterface {
         // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
         input.nextLine();
         return value;
+    }
+
+
+
+    // *** Display Submethods ***
+
+    // Displaying All Project Details
+    public static void dispViewProjects() {
+        if (project1 != null) {
+            auxViewProject(project1, "123");
+        }
+        System.out.println("--------------------------------------------------------------------------------------------");
+        if (project2 != null) {
+            auxViewProject(project2, "123");
+        }
+        System.out.println("--------------------------------------------------------------------------------------------");
+        if (project3 != null) {
+            auxViewProject(project3, "123");
+        }
+    }
+
+    // Displaying Completed Tasks
+    public static void dispCompleteTasks(Scanner input) {
+        Project certainProject = auxDialogueGetProject(input);
+        if (certainProject == null) { return; }
+
+        System.out.println("Completed Tasks in Project #" + certainProject.getProjectID() + ".");
+        Task task1 = certainProject.getTask(1);
+        Task task2 = certainProject.getTask(2);
+        Task task3 = certainProject.getTask(3);
+        if (task1 != null && task1.getCompleted()) { auxTaskPrettyInfo(task1, false); }
+        if (task2 != null && task2.getCompleted()) { auxTaskPrettyInfo(task2, false); }
+        if (task3 != null && task3.getCompleted()) { auxTaskPrettyInfo(task3, false); }
+
+    }
+
+    // Filtering Tasks by Type
+    public static void dispFilteredTasks(Scanner input) {
+        String matchingTasks;
+
+        System.out.print("Enter the type to filter by ([A]dministrative, [L]ogistical, or [S]upport): ");
+        String filter;
+        while (true) {
+            filter = auxCheckInputValid("", input);
+            if (filter.equals(SECERT_STRING)) { continue; }
+            if (filter.length() != 1 || !Task.permittedTypes.contains(filter.toUpperCase())) {
+                System.out.print("ERROR: Invalid filter type entered. Please try again: ");
+                continue;
+            }
+            break;
+        }
+
+        matchingTasks = auxFilterTypes(project1, filter.toUpperCase().charAt(0));
+        auxViewProject(project1, matchingTasks);
+        System.out.println("--------------------------------------------------------------------------------------------");
+        matchingTasks = auxFilterTypes(project2, filter.toUpperCase().charAt(0));
+        auxViewProject(project2, matchingTasks);
+        System.out.println("--------------------------------------------------------------------------------------------");
+        matchingTasks = auxFilterTypes(project3, filter.toUpperCase().charAt(0));
+        auxViewProject(project3, matchingTasks);
+    }
+
+    // Average Task Type Durations
+    public static void dispAverageTypeDurations() {
+        System.out.println("---Average Task Duration---");
+        System.out.println("Average task duration of all task types across all projects:");
+        System.out.println("\t* Average task duration of all administrative tasks is " + auxGetAverageTypeDurations('A', 0) + " hours.");
+        System.out.println("\t* Average task duration of all logistics tasks is " + auxGetAverageTypeDurations('L', 0) + " hours.");
+        System.out.println("\t* Average task duration of all support tasks is " + auxGetAverageTypeDurations('S', 0) + " hours.");
+
+        System.out.println("---Breakdown by Project---");
+        auxPrettyAverageTypeDurationsByProject(project1, 1);
+        auxPrettyAverageTypeDurationsByProject(project2, 2);
+        auxPrettyAverageTypeDurationsByProject(project3, 3);
     }
 
 
@@ -452,6 +559,7 @@ public class UserInterface {
 
         while (true) {
             System.out.print("? ");
+            // TODO: Check to make sure integer is integer.
             int line = input.nextInt();
             input.nextLine();
             switch (line) {
@@ -477,80 +585,6 @@ public class UserInterface {
                     break;
             }
         }
-    }
-
-
-
-    // *** Display Submethods ***
-
-    // Displaying All Project Details
-    public static void dispViewProjects() {
-        if (project1 != null) {
-            auxViewProject(project1, "123");
-        }
-        System.out.println("--------------------------------------------------------------------------------------------");
-        if (project2 != null) {
-            auxViewProject(project2, "123");
-        }
-        System.out.println("--------------------------------------------------------------------------------------------");
-        if (project3 != null) {
-            auxViewProject(project3, "123");
-        }
-    }
-
-    // Displaying Completed Tasks
-    public static void dispCompleteTasks(Scanner input) {
-        Project certainProject = auxDialogueGetProject(input);
-        if (certainProject == null) { return; }
-
-        System.out.println("Completed Tasks in Project #" + certainProject.getProjectID() + ".");
-        Task task1 = certainProject.getTask(1);
-        Task task2 = certainProject.getTask(2);
-        Task task3 = certainProject.getTask(3);
-        if (task1 != null && task1.getCompleted()) { auxTaskPrettyInfo(task1, false); }
-        if (task2 != null && task2.getCompleted()) { auxTaskPrettyInfo(task2, false); }
-        if (task3 != null && task3.getCompleted()) { auxTaskPrettyInfo(task3, false); }
-
-    }
-
-    // Filtering Tasks by Type
-    public static void dispFilteredTasks(Scanner input) {
-        String matchingTasks;
-        
-        System.out.print("Enter the type to filter by ([A]dministrative, [L]ogistical, or [S]upport): ");
-        String filter;
-        while (true) {
-            filter = auxCheckInputValid("", input);
-            if (filter.equals(SECERT_STRING)) { continue; }
-            if (filter.length() != 1 || !Task.permittedTypes.contains(filter.toUpperCase())) {
-                System.out.print("ERROR: Invalid filter type entered. Please try again: ");
-                continue;
-            }
-            break;
-        }
-
-        matchingTasks = auxFilterTypes(project1, filter.toUpperCase().charAt(0));
-        auxViewProject(project1, matchingTasks);
-        System.out.println("--------------------------------------------------------------------------------------------");
-        matchingTasks = auxFilterTypes(project2, filter.toUpperCase().charAt(0));
-        auxViewProject(project2, matchingTasks);
-        System.out.println("--------------------------------------------------------------------------------------------");
-        matchingTasks = auxFilterTypes(project3, filter.toUpperCase().charAt(0));
-        auxViewProject(project3, matchingTasks);
-    }
-
-    // Average Task Type Durations
-    public static void dispAverageTypeDurations() {
-        System.out.println("---Average Task Duration---");
-        System.out.println("Average task duration of all task types across all projects:");
-        System.out.println("\t* Average task duration of all administrative tasks is " + auxGetAverageTypeDurations('A', 0) + " hours.");
-        System.out.println("\t* Average task duration of all logistics tasks is " + auxGetAverageTypeDurations('L', 0) + " hours.");
-        System.out.println("\t* Average task duration of all support tasks is " + auxGetAverageTypeDurations('S', 0) + " hours.");
-
-        System.out.println("---Breakdown by Project---");
-        auxPrettyAverageTypeDurationsByProject(project1, 1);
-        auxPrettyAverageTypeDurationsByProject(project2, 2);
-        auxPrettyAverageTypeDurationsByProject(project3, 3);
     }
 
 
