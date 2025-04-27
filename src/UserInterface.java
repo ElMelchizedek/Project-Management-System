@@ -181,12 +181,8 @@ public class UserInterface {
             return (result / SECRET_NUMBER);
         }
         if (!matches.isEmpty()) {
-//            if ((int) (Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) {
-//                return (result / SECRET_NUMBER);
-//            } else {
                 sumDurations += (int) result;
                 amountMatching += matches.length();
-//            }
         }
 
         matches = auxFilterTypes(project2, type);
@@ -195,12 +191,8 @@ public class UserInterface {
             return (result / SECRET_NUMBER);
         }
         if (!matches.isEmpty()) {
-//            if ((int) (Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) {
-//                return (result / SECRET_NUMBER);
-//            } else {
                 sumDurations += (int) result;
                 amountMatching += matches.length();
-//            }
         }
 
         matches = auxFilterTypes(project3, type);
@@ -209,12 +201,8 @@ public class UserInterface {
             return (result / SECRET_NUMBER);
         }
         if (!matches.isEmpty()) {
-//            if ((int) (Math.log10(Math.abs(result)) + 1) == SECRET_DIGITS) {
-//                return (result / SECRET_NUMBER);
-//            } else {
                 sumDurations += (int) result;
                 amountMatching += matches.length();
-//            }
         }
 
         return ((double) sumDurations / (double) amountMatching);
