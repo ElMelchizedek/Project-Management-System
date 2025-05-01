@@ -75,19 +75,30 @@ public class Project {
             this.allTaskIDs = ID.concat(",");
         }
     }
+    private void clearAllTaskIDs() { allTaskIDs = ""; }
 
     // Other methods relating to the Project itself and its Tasks.
     public void deleteTask(int ID) {
+        Task removedTask;
         if ((task1 != null) && (task1.getTaskID() == ID)) {
+            removedTask = task1;
             task1 = null;
         } else if ((task2 != null) && (task2.getTaskID() == ID)) {
+            removedTask = task2;
             task2 = null;
         } else if ((task3 != null) && (task3.getTaskID() == ID)) {
+            removedTask = task3;
             task3 = null;
         } else {
             System.out.println("ERROR: Invalid Task ID used to request deletion from Project #" + this.projectID + "!");
             return;
         }
+        // Removes removed task's ID from allTaskIDs.
+        clearAllTaskIDs();
+        if ( removedTask != task1 ) { addTaskID(Integer.toString(task1.getTaskID())); }
+        if ( removedTask != task2 ) { addTaskID(Integer.toString(task2.getTaskID())); }
+        if ( removedTask != task3 ) { addTaskID(Integer.toString(task3.getTaskID())); }
+
         System.out.println("Task #" + ID + " of Project #" + this.projectID + " deleted.");
     }
 

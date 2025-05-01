@@ -4,18 +4,18 @@ public class UserInterface {
     /*
     !!! GLOBAL VARIABLES !!!
      */
-    // Debug Toggle
-    private static final boolean debug = true;
 
     // *** Private variables to be accessed and manipulated via setters and getters. ***
     private static Project project1 = null;
     private static Project project2 = null;
     private static Project project3 = null;
 
-    // Constant needed for auxCalculateAverageDuration().
+    // Constant needed for auxCalculateAverageDuration(), as a way to distinguish calls made to calculate durations for
+    // a specific project, or for durations of a certain type across all projects.
     public static final double SECRET_NUMBER = 100000000;
-    // Constant needed for auxCheckInputValid(String). Pay no attention to its contents.
-    public static final String SECERT_STRING = """
+    // Constant needed for auxCheckInputValid(String) to check if it failed a check.
+    // Pay no attention to its contents: It is like this to remove the possibility of a false positive.
+    public static final String SECRET_STRING = """
             Hegel's criticism of the 'sentimental religion' of
             Jacobi or Schleiermacher was misleading: he accused it of
             subjectivism, as though he himself were a champion of the
@@ -39,6 +39,7 @@ public class UserInterface {
 
     // *** Debug Methods ***
     private static String debugInitialise(String IDsProjects) {
+        System.out.println("*** INITIALISING ***");
         // Initialise Projects.
         System.out.println("DEBUG: INITIALISING");
         project1 = new Project(1, "Borges", "SMALL");
@@ -57,6 +58,24 @@ public class UserInterface {
         project3.createTask(33, "Lenin", "S", 6, false);
 
         return IDsProjects;
+    }
+
+    private static boolean debugTest() {
+        System.out.println("*** STRESS TEST ***");
+        project1 = new Project(0, "Test project", "Large");
+        project1.createTask(1, "Valid ID", "A", 1, false);
+        // This isn't a useful test because negatives are checked for in optionCreateTask(), which isn't being
+        // invoked here.
+//        project1.createTask(-1, "Invalid ID", "A", 1, false);
+        // Same thing for this one.
+//        project1.createTask(1, "Duplicate ID", "A", 1, false);
+        project1.deleteTask(999);
+        project1.createTask(2, "Test capacity", "A", 1, false);
+        project1.createTask(3, "Test capacity", "A", 1, false);
+        project1.createTask(4, "Test capacity", "A", 1, false);
+        project2 = new Project(99, "Empty", "Medium");
+        auxPrettyAverageTypeDurationsByProject(project2, 99);
+        return true;
     }
 
     // *** Auxiliary methods. ***
@@ -121,7 +140,7 @@ public class UserInterface {
     // Used in optionEditTask(), optionRemoveTask(), and dispCompleteTasks().
     private static Project auxDialogueGetProject(Scanner input) {
         Project certainProject;
-        System.out.print("Enter ID of Project:");
+        System.out.print("Enter ID of Project: ");
         int ProjectID;
         while (true) {
             ProjectID = input.nextInt();
@@ -177,7 +196,7 @@ public class UserInterface {
         String matches = auxFilterTypes(project1, type);
         double result   = auxCalculateAverageDuration(project1, matches, stopAtProject);
         // Cf. comments within auxCalculateAverageDuration to understand why I am doing these eccentric calculations on the return value.
-        if (stopAtProject == 1) {
+        if (project1 != null && stopAtProject == project1.getProjectID()) {
             return (result / SECRET_NUMBER);
         }
         if (!matches.isEmpty()) {
@@ -187,7 +206,7 @@ public class UserInterface {
 
         matches = auxFilterTypes(project2, type);
         result          = auxCalculateAverageDuration(project2, matches, stopAtProject);
-        if (stopAtProject == 2) {
+        if (project2 != null && stopAtProject == project2.getProjectID()) {
             return (result / SECRET_NUMBER);
         }
         if (!matches.isEmpty()) {
@@ -197,7 +216,7 @@ public class UserInterface {
 
         matches = auxFilterTypes(project3, type);
         result          = auxCalculateAverageDuration(project3, matches, stopAtProject);
-        if (stopAtProject == 3) {
+        if (project3 != null && stopAtProject == project3.getProjectID()) {
             return (result / SECRET_NUMBER);
         }
         if (!matches.isEmpty()) {
@@ -210,10 +229,16 @@ public class UserInterface {
 
     // Used in dispAverageTypeDurations().
     private static void auxPrettyAverageTypeDurationsByProject(Project project, int num) {
-        System.out.println("Project ID " + project.getProjectID() + ":");
-        System.out.println("\t* Average task duration of administrative tasks is " + auxGetAverageTypeDurations('A', num) + ".");
-        System.out.println("\t* Average task duration of logistics tasks is " + auxGetAverageTypeDurations('L', num) + ".");
-        System.out.println("\t* Average task duration of support tasks is " + auxGetAverageTypeDurations('S', num) + ".");
+        if (project != null) {
+            System.out.println("Project ID " + project.getProjectID() + ":");
+            if (!project.getAllTaskIDs().equals("")) {
+                System.out.println("\t* Average task duration of administrative tasks is " + auxGetAverageTypeDurations('A', num) + ".");
+                System.out.println("\t* Average task duration of logistics tasks is " + auxGetAverageTypeDurations('L', num) + ".");
+                System.out.println("\t* Average task duration of support tasks is " + auxGetAverageTypeDurations('S', num) + ".");
+            } else {
+                System.out.println("\t* No created tasks to report.");
+            }
+        }
     }
 
     // Multiple overloads of the method to handle different types of data being checked.
@@ -222,21 +247,27 @@ public class UserInterface {
     private static String auxCheckInputValid(String data, Scanner input) {
         if (!input.hasNextLine()) {
             System.out.print("Value entered was not a valid name. Please try again: ");
-            return SECERT_STRING;
+            return SECRET_STRING;
         }
         String value = input.nextLine();
         if (value.isEmpty()) {
             System.out.print("Empty input given. Please try again: ");
-            return SECERT_STRING;
+            return SECRET_STRING;
         }
         return value;
     }
     private static int auxCheckInputValid(int data, Scanner input) {
         if (!input.hasNextInt()) {
             System.out.print("Value entered was not a valid number (integer). Please try again: ");
+            input.nextLine();
             return -1;
         }
         int value = input.nextInt();
+        if (value < 0) {
+            System.out.print("Negative values are not permitted. Please try again: ");
+            input.nextLine();
+            return -1;
+        }
         // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
         input.nextLine();
         return value;
@@ -284,7 +315,7 @@ public class UserInterface {
         String filter;
         while (true) {
             filter = auxCheckInputValid("", input);
-            if (filter.equals(SECERT_STRING)) { continue; }
+            if (filter.equals(SECRET_STRING)) { continue; }
             if (filter.length() != 1 || !Task.permittedTypes.contains(filter.toUpperCase())) {
                 System.out.print("ERROR: Invalid filter type entered. Please try again: ");
                 continue;
@@ -347,7 +378,7 @@ public class UserInterface {
         String name;
         while (true) {
            name = auxCheckInputValid("", input);
-           if (name.equals(SECERT_STRING)) { continue; }
+           if (name.equals(SECRET_STRING)) { continue; }
            break;
         }
 
@@ -355,7 +386,7 @@ public class UserInterface {
         String type;
         while(true) {
             type = auxCheckInputValid("", input);
-            if (type.equals(SECERT_STRING)) { continue; }
+            if (type.equals(SECRET_STRING)) { continue; }
             switch (type.toUpperCase()) {
                 case "SMALL":
                     tempProject = new Project(ID, name, "SMALL");
@@ -446,7 +477,7 @@ public class UserInterface {
         String newDescription;
         while (true) {
             newDescription = auxCheckInputValid("", input);
-            if (newDescription.equals(SECERT_STRING)) { continue; }
+            if (newDescription.equals(SECRET_STRING)) { continue; }
             break;
         }
 
@@ -454,7 +485,7 @@ public class UserInterface {
         String newType;
         while (true) {
             newType = auxCheckInputValid("", input);
-            if (newType.equals(SECERT_STRING)) { continue; }
+            if (newType.equals(SECRET_STRING)) { continue; }
             newType = newType.toUpperCase();
             if (newType.length() != 1) {
                 System.out.print("ERROR: Task type was not specified with a single character. Please try again: ");
@@ -498,16 +529,16 @@ public class UserInterface {
             break;
         }
 
-        System.out.print("Would you like to edit the completed status of the selected Task? (currently: " + certainTask.status() + ") [y/n]");
+        System.out.print("Would you like to edit the completed status of the selected Task? (currently: " + certainTask.status() + ") [y/n] ");
         String choice;
         while(true) {
             choice = auxCheckInputValid("", input);
-            if (choice.equals(SECERT_STRING)) { continue; }
+            if (choice.equals(SECRET_STRING)) { continue; }
             choice = choice.toLowerCase();
 
             if (choice.equals("y")) {
                 certainTask.setCompleted(!certainTask.getCompleted());
-                System.out.print("Status of Task #" + certainTask.getTaskID()
+                System.out.println("Status of Task #" + certainTask.getTaskID()
                         + " of Project #" + certainProject.getProjectID()
                         + " is now " + certainTask.status() + ".");
             } else {
@@ -539,8 +570,8 @@ public class UserInterface {
                         \t *1: Exit to Project Management System.
                         \t *2: All Project details.
                         \t *3: Completed Tasks within Project.
-                        \t *4: Tasks of all Projects filtered by type.
-                        \t *5: Average duration of Tasks filtered by type.
+                        \t *4: Tasks of all Projects per type filter provided by user.
+                        \t *5: Average duration of Tasks arranged by type.
                         """;
 
         System.out.println("*** Display Wizard ***");
@@ -579,6 +610,10 @@ public class UserInterface {
 
     // *** Main entry method. ***
     public static void main(String[] args) {
+        // Debugging toggles.
+        boolean init = false;
+        boolean test = false;
+
         int amountProjects = 0;
         String IDsProjects = "";
         String help = """
@@ -596,9 +631,17 @@ public class UserInterface {
         Scanner input = new Scanner(System.in);
 
         // Debug stuff
-        if (debug) {
+        if (init) {
             IDsProjects = debugInitialise(IDsProjects);
             amountProjects = 3;
+        }
+        if (test) {
+            if (debugTest()) {
+                System.out.println("! Debug stress test done.");
+            }
+            project1 = null;
+            project2 = null;
+            project3 = null;
         }
 
         System.out.println("Project Management System");
@@ -607,7 +650,7 @@ public class UserInterface {
         while (true) {
             System.out.print("> ");
             String line = auxCheckInputValid("", input);
-            if (line.equals(SECERT_STRING)) { continue; }
+            if (line.equals(SECRET_STRING)) { continue; }
             if (line != null) {
                 switch (line.toUpperCase()) {
                     // Help.
