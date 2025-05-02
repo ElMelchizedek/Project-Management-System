@@ -12,32 +12,24 @@ public class UserInterface {
 
     // Constant needed for auxCalculateAverageDuration(), as a way to distinguish calls made to calculate durations for
     // a specific project, or for durations of a certain type across all projects.
-    public static final double SECRET_NUMBER = 100000000;
+    public static final double SECRET_NUMBER = 5051818;
     // Constant needed for auxCheckInputValid(String) to check if it failed a check.
     // Pay no attention to its contents: It is like this to remove the possibility of a false positive.
-    public static final String SECRET_STRING = """
-            Hegel's criticism of the 'sentimental religion' of
-            Jacobi or Schleiermacher was misleading: he accused it of
-            subjectivism, as though he himself were a champion of the
-            reality of God's existence, but this was quite untrue. By represent-
-            ing the finite spirit as a manifestation of universal spirit, Hegel
-            made the latter a projection of historical self-consciousness, while
-            infinity appeared as merely the self-negation of finitude—i.e.
-            God, in the last analysis, is merely a creation of the human ego,
-            which with diabolic pride lays claim to almighty power. Hegel's
-            'world spirit', too, acquires reality only thanks to the operation
-            of human historical self-consciousness. Human history is thus
-            self-sufficient and has no significance beyond its own self-
-            development. So, according to Hegel, God is dead and the only
-            reality is self-consciousness.
-             +\
-            (Bruno Bauer and the negativity of self-consciousness)""";
+    public static final String SECRET_STRING =  """
+                                                The question whether objective truth can be attributed to human thinking is not a question of theory but is a practical question.
+                                                Man must prove the truth, i.e., the reality and power, the this-sidedness [Diesseitigkeit] of his thinking, in practice.
+                                                The dispute over the reality or non-reality of thinking which is isolated from practice is a purely scholastic question.
+                                                +\
+                                                """;
 
     /*
     !!! METHODS !!!
      */
 
     // *** Debug Methods ***
+    // DESC: Initialises three Projects, each being assigned exclusively one of the three sizes available
+    // And then having Tasks assigned to themselves.
+    // USAGE: main().
     private static String debugInitialise(String IDsProjects) {
         System.out.println("*** INITIALISING ***");
         // Initialise Projects.
@@ -60,15 +52,14 @@ public class UserInterface {
         return IDsProjects;
     }
 
+    // DESC: Attempts to perform a stress test, however too late into development did I realise I exclusively
+    // wrote many of the methods regarding the management of Projects and Tasks to require human input,
+    // and not wanting to refactor the whole codebase I simply accepted this lackluster version of a "test". 
+    // USAGE: main().
     private static boolean debugTest() {
         System.out.println("*** STRESS TEST ***");
         project1 = new Project(0, "Test project", "Large");
         project1.createTask(1, "Valid ID", "A", 1, false);
-        // This isn't a useful test because negatives are checked for in optionCreateTask(), which isn't being
-        // invoked here.
-//        project1.createTask(-1, "Invalid ID", "A", 1, false);
-        // Same thing for this one.
-//        project1.createTask(1, "Duplicate ID", "A", 1, false);
         project1.deleteTask(999);
         project1.createTask(2, "Test capacity", "A", 1, false);
         project1.createTask(3, "Test capacity", "A", 1, false);
@@ -80,13 +71,16 @@ public class UserInterface {
 
     // *** Auxiliary methods. ***
 
-    // Used in optionCreateProject().
+    // DESC: Prints an acknowledgement to the user of creation and then returns IDsProjects modified to have the
+    // new Project's ID appended. 
+    // USAGE: optionCreateProject().
     private static String auxAssignProject(int ID, String type, String valueID, String IDsProjects) {
         System.out.println("Created Project #" + ID + " of type " + type + ".");
         return IDsProjects.concat(valueID + ",");
     }
 
-    // Used in auxViewProject().
+    // USAGE: Display info of the specified Task.
+    // USAGE: auxViewProject().
     private static void auxTaskPrettyInfo(Task task, boolean includeStatus) {
         if (task != null) {
             System.out.print("\t* Task ID: " + task.getTaskID() +
@@ -100,7 +94,8 @@ public class UserInterface {
         }
     }
 
-    // Used in optionViewProjects() and dispFilteredTasks().
+    // DESC: Displays details of a selected Project and the Tasks assigned to it.
+    // USAGE: optionViewProjects() and dispFilteredTasks().
     private static void auxViewProject(Project project, String chosenTasks) {
         if (project != null) {
             int amountTasks = project.amountTasks();
@@ -123,7 +118,8 @@ public class UserInterface {
         }
     }
 
-    // Used in optionCreateTask().
+    // DESC: Gets one of the three Project variables required by the specifications, using its ID.
+    // USAGE: optionCreateTask().
     private static Project auxGetProjectByID(int ProjectID) {
         Project certainProject = null;
         if (project1 != null && project1.getProjectID() == ProjectID) {
@@ -137,15 +133,16 @@ public class UserInterface {
         return certainProject;
     }
 
-    // Used in optionEditTask(), optionRemoveTask(), and dispCompleteTasks().
+    // DESC: Typical prompt request grabbing Project by ID, isolated due to being repeated in multiple methods.
+    // USAGE: optionEditTask(), optionRemoveTask(), and dispCompleteTasks().
     private static Project auxDialogueGetProject(Scanner input) {
         Project certainProject;
         System.out.print("Enter ID of Project: ");
         int ProjectID;
         while (true) {
-            ProjectID = input.nextInt();
-            // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
-            input.nextLine();
+            ProjectID = auxCheckInputValid(0, input);
+            if (ProjectID == -1) { continue; }
+
             certainProject = auxGetProjectByID(ProjectID);
             if (certainProject == null) {
                 System.out.print("ERROR: Entered Project ID does not match any existing Project. Please try again: ");
@@ -156,7 +153,9 @@ public class UserInterface {
         return certainProject;
     }
 
-    // Used in dispFilteredTasks() and auxGetAverageTypeDurations().
+    // DESC: Returns a String containing numbers indicating which Tasks in a Project have the type specified.
+    // E.g., if a Project's task1 and task3 have the specified type, then the String returned will be "13".
+    // USAGE: dispFilteredTasks() and auxGetAverageTypeDurations().
     private static String auxFilterTypes(Project project, char type) {
         String matchingTasks = "";
 
@@ -172,7 +171,9 @@ public class UserInterface {
         return matchingTasks;
     }
 
-    // Used in auxGetAverageTypeDurations().
+    // DESC: Calculates the average duration of Tasks within a Project that match a specified type, as inidicated by the
+    // matches parameter. 
+    // USAGE: auxGetAverageTypeDurations().
     private static double auxCalculateAverageDuration(Project project, String matches, int stopAtProject) {
         int sumDurations = 0;
         int amountMatching = 0;
@@ -187,7 +188,11 @@ public class UserInterface {
             return (((double)sumDurations / (double)amountMatching) * SECRET_NUMBER);
         } else { return sumDurations; }
     }
-    // Used in dispAverageTaskDurations() and auxPrettyAverageTypeDurationsByProject().
+
+    // Wrapper for auxCalculateAverageDuration().
+    // DESC: It allows for both the calculating of average Task durations per a specified Type within a certain Project,
+    // (indicated by the stopAtProject parameter) or for all Projects overall.
+    // USAGE: dispAverageTaskDurations() and auxPrettyAverageTypeDurationsByProject().
     private static double auxGetAverageTypeDurations(char type, int stopAtProject) {
         int amountMatching = 0;
         int sumDurations = 0;
@@ -227,7 +232,8 @@ public class UserInterface {
         return ((double) sumDurations / (double) amountMatching);
     }
 
-    // Used in dispAverageTypeDurations().
+    // DESC: Displays the average duration of Tasks within a Project, divided by type.
+    // USAGE: dispAverageTypeDurations().
     private static void auxPrettyAverageTypeDurationsByProject(Project project, int num) {
         if (project != null) {
             System.out.println("Project ID " + project.getProjectID() + ":");
@@ -241,9 +247,11 @@ public class UserInterface {
         }
     }
 
-    // Multiple overloads of the method to handle different types of data being checked.
+    // DESC: Checks for common edge-cases regarding input, both integers and Strings.
+    // NOTE: Multiple overloads of the method to handle different types of data being checked.
     // Yes data is a redundant variable that is unused, but I don't know how to make a method have a generic return
     // type, so I'm just going to leave them in there.
+    // USAGE: auxDialogueGetProject(), dispFilteredTasks(), optionCreateProject(), optionCreateTask(), optionEditTask(), and main().
     private static String auxCheckInputValid(String data, Scanner input) {
         if (!input.hasNextLine()) {
             System.out.print("Value entered was not a valid name. Please try again: ");
@@ -277,7 +285,8 @@ public class UserInterface {
 
     // *** Display Submethods ***
 
-    // Displaying All Project Details
+    // DESC: Displaying All Project Details
+    // USAGE: optionDisplay().
     private static void dispViewProjects() {
         if (project1 != null) {
             auxViewProject(project1, "123");
@@ -292,7 +301,8 @@ public class UserInterface {
         }
     }
 
-    // Displaying Completed Tasks
+    // DESC: Displaying Completed Tasks
+    // USAGE: optionDisplay().
     private static void dispCompleteTasks(Scanner input) {
         Project certainProject = auxDialogueGetProject(input);
         if (certainProject == null) { return; }
@@ -307,7 +317,8 @@ public class UserInterface {
 
     }
 
-    // Filtering Tasks by Type
+    // DESC: Filtering Tasks by Type
+    // USAGE: optionDisplay().
     private static void dispFilteredTasks(Scanner input) {
         String matchingTasks;
 
@@ -333,7 +344,8 @@ public class UserInterface {
         auxViewProject(project3, matchingTasks);
     }
 
-    // Average Task Type Durations
+    // DESC: Average Task Type Durations
+    // USAGE: optionDisplay().
     private static void dispAverageTypeDurations() {
         System.out.println("---Average Task Duration---");
         System.out.println("Average task duration of all task types across all projects:");
@@ -351,6 +363,8 @@ public class UserInterface {
 
     // *** Methods invoked by user input ("Option Methods"). ***
 
+    // DESC: Provides an interactive wizard to create a Project from.
+    // USAGE: main()
     private static String optionCreateProject(Scanner input, int amountProjects, String IDsProjects) {
         System.out.println("*** Project Wizard ***");
         Project tempProject;
@@ -418,6 +432,8 @@ public class UserInterface {
         return "";
     }
 
+    // DESC: Provides an interactive wizard to remove a Project from.
+    // USAGE: main().
     private static void optionRemoveProject(Scanner input) {
         System.out.println("*** Project Removal Wizard ***");
 
@@ -442,6 +458,8 @@ public class UserInterface {
         System.out.println("ID does not match any known Project ID. Aborting...");
     }
 
+    // DESC: Provides an interactive wizard to create a Task from.
+    // USAGE: main().
     private static void optionCreateTask(Scanner input) {
         System.out.println("*** Task Wizard ***");
         Project certainProject;
@@ -509,7 +527,9 @@ public class UserInterface {
         certainProject.createTask(newID, newDescription, newType, newDuration, false);
     }
 
-    // Really just the "mark task completed" function.
+    // DESC: Provides an interactive wizard to edit a Task from.
+    // NOTE: Really just a "mark Task completed" function.
+    // USAGE: main().
     private static void optionEditTask(Scanner input) {
         Task certainTask;
         Project certainProject = auxDialogueGetProject(input);
@@ -548,6 +568,8 @@ public class UserInterface {
         }
     }
 
+    // DESC: Provides an interactive wizard to remove a Task from.
+    // USAGE: main().
     private static void optionRemoveTask(Scanner input) {
         Project certainProject = auxDialogueGetProject(input);
         if (certainProject == null) { return; }
@@ -563,6 +585,8 @@ public class UserInterface {
         certainProject.deleteTask(TaskID);
     }
 
+    // DESC: Interactive portal used to allow the user to interface with the 'disp' methods
+    // USAGE: main().
     private static void optionDisplay(Scanner input) {
         String options = """ 
                         Options for Display:
