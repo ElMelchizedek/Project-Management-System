@@ -13,7 +13,7 @@ public class Project {
     private final String permittedTypes = "SMALLMEDIUMLARGE";
 
     // Constructor.
-    public Project(int ID, String name, String type) {
+    public Project(int ID, String name, String type) throws Exception {
         // Make sure that the soon-to-be project does not have an ID already in use.
         setProjectID(ID);
         setProjectName(name);
@@ -40,11 +40,10 @@ public class Project {
     // Setters.
     public void setProjectID( int ID ) { this.projectID = ID; }
     public void setProjectName( String name ) { this.projectName = name; }
-    public void setProjectType( String type ) {
+    public void setProjectType( String type ) throws Exception {
         type = type.toUpperCase();
         if (!permittedTypes.contains(type)) {
-            System.out.println("ERROR: Specified Task Type is not permitted!");
-            return;
+            throw new Exception("Specified Task Type is not permitted!");
         }
         switch (type) {
             case "SMALL" -> this.projectType = "Small";
@@ -54,7 +53,7 @@ public class Project {
     }
 
     // Methods relating to Tasks.
-    public void createTask(int ID, String description, String type, int duration, boolean completed) {
+    public void createTask(int ID, String description, String type, int duration, boolean completed) throws Exception {
         if (task1 == null) {
             task1 = new Task(ID, description, type, duration, completed, this);
         } else if ((task2 == null) && (!projectType.equalsIgnoreCase("SMALL"))) {
@@ -62,11 +61,9 @@ public class Project {
         } else if ((task3 == null) && (projectType.equalsIgnoreCase("LARGE"))) {
             task3 = new Task(ID, description, type, duration, completed, this);
         } else {
-            System.out.println("ERROR: Maximum amount of concurrent tasks for project #" + this.projectID + " has already been reached!");
-            return;
+            throw new Exception("Maximum amount of concurrent tasks for Project #" + this.projectID + " has already been reached!");
         }
 
-        System.out.println("Created Task #" + ID + " of type " + type + " lasting " + duration + "h, assigned to Project #" + projectID + ".");
     }
     public void addTaskID(String ID) {
         if (this.allTaskIDs != null) {
@@ -78,7 +75,7 @@ public class Project {
     private void clearAllTaskIDs() { allTaskIDs = ""; }
 
     // Other methods relating to the Project itself and its Tasks.
-    public void deleteTask(int ID) {
+    public int deleteTask(int ID) throws Exception {
         Task removedTask;
         if ((task1 != null) && (task1.getTaskID() == ID)) {
             removedTask = task1;
@@ -90,8 +87,7 @@ public class Project {
             removedTask = task3;
             task3 = null;
         } else {
-            System.out.println("ERROR: Invalid Task ID used to request deletion from Project #" + this.projectID + "!");
-            return;
+            throw new Exception("Invalid Task ID used to request deletion from Project #" + this.projectID + "!");
         }
         // Removes removed task's ID from allTaskIDs.
         clearAllTaskIDs();
@@ -99,7 +95,7 @@ public class Project {
         if ( removedTask != task2 ) { addTaskID(Integer.toString(task2.getTaskID())); }
         if ( removedTask != task3 ) { addTaskID(Integer.toString(task3.getTaskID())); }
 
-        System.out.println("Task #" + ID + " of Project #" + this.projectID + " deleted.");
+        return this.projectID;
     }
 
     public int amountTasks() {

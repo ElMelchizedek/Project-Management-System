@@ -22,6 +22,7 @@ public class UserInterface {
                                                 +\
                                                 """;
 
+
     /*
     !!! METHODS !!!
      */
@@ -366,8 +367,11 @@ public class UserInterface {
     // DESC: Provides an interactive wizard to create a Project from.
     // USAGE: main()
     private static String optionCreateProject(Scanner input, int amountProjects, String IDsProjects) {
+        // Variables
+        String[] permittedTypes = {"SMALL", "MEDIUM", "LARGE"};
+        Project tempProject = null;
+
         System.out.println("*** Project Wizard ***");
-        Project tempProject;
 
         if (amountProjects > 3) {
             System.out.println("ERROR: Maximum amount of concurrent projects already reached! Aborting project creation process...");
@@ -401,20 +405,22 @@ public class UserInterface {
         while(true) {
             type = auxCheckInputValid("", input);
             if (type.equals(SECRET_STRING)) { continue; }
-            switch (type.toUpperCase()) {
-                case "SMALL":
-                    tempProject = new Project(ID, name, "SMALL");
-                    break;
-                case "MEDIUM":
-                    tempProject = new Project(ID, name, "MEDIUM");
-                    break;
-                case "LARGE":
-                    tempProject = new Project(ID, name, "LARGE");
-                    break;
-                default:
-                    System.out.println("Unknown project type. Please try again: ");
-                    continue;
+
+            for (int i = 0; i <= permittedTypes.length; i++) {
+                if (tempProject != null && type.toUpperCase().equals(permittedTypes[i])) {
+                    try {
+                        tempProject = new Project(ID, name, permittedTypes[i]);
+                        break;
+                    } catch (Exception e){
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
+                }
             }
+            if (tempProject == null) {
+                System.out.println("Unknown Project type. Please try again: ");
+                continue;
+            }
+
             break;
         }
 
@@ -524,7 +530,12 @@ public class UserInterface {
             break;
         }
 
-        certainProject.createTask(newID, newDescription, newType, newDuration, false);
+        try {
+            certainProject.createTask(newID, newDescription, newType, newDuration, false);
+            System.out.println("Created Task #" + newID + " of type " + newType + " lasting " + newDuration + "h, assigned to Project #" + newID + ".");
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
     }
 
     // DESC: Provides an interactive wizard to edit a Task from.
@@ -582,7 +593,14 @@ public class UserInterface {
             break;
         }
 
-        certainProject.deleteTask(TaskID);
+        int projectID;
+        try {
+            projectID = certainProject.deleteTask(TaskID);
+            System.out.println("Task #" + TaskID + " of Project #" + projectID + " deleted.");
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+
     }
 
     // DESC: Interactive portal used to allow the user to interface with the 'disp' methods

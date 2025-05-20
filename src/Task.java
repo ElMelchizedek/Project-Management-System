@@ -9,7 +9,7 @@ public class Task {
     public static final String permittedTypes = "ALS";
 
     // Constructors.
-    public Task(int ID, String description, String type, int duration, boolean completed, Project project) {
+    public Task(int ID, String description, String type, int duration, boolean completed, Project project) throws Exception {
         setTaskID(ID, project);
         setDescription(description);
         setTaskType(type);
@@ -25,23 +25,22 @@ public class Task {
     public int getTaskDuration() { return this.taskDuration; }
 
     // Setters.
-    public void setTaskID(int ID, Project project) {
+    public void setTaskID(int ID, Project project) throws Exception {
         String valueNewID = String.valueOf(ID);
         if (project.getAllTaskIDs() != null && project.getAllTaskIDs().contains(valueNewID + ",")) {
-            System.out.println("ERROR: Duplicate task ID!");
+            throw new Exception("Duplicate Task ID!");
         }
 
         this.taskID = ID;
         project.addTaskID(valueNewID);
     }
-    public void setTaskType(String type) {
+    public void setTaskType(String type) throws Exception {
         type = type.toUpperCase();
         if (type.length() != 1) {
-            System.out.println("ERROR: Task Type string is not of length 1.");
-            return;
+            throw new Exception("Task Type string is not of length 1!");
         }
         if (!permittedTypes.contains(type)) {
-            System.out.println("ERROR: Task Type string is not either \"A\", \"L\", or \"S\".");
+            throw new Exception("Task Type string is not either \"A\", \"L\", or \"S\"!");
         }
 
         this.taskType = type.charAt(0);
