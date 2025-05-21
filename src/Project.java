@@ -149,4 +149,16 @@ public class Project {
         }
         return false;
     }
+
+    public int findIndex(Project[] listProjects) throws Exception {
+        int index = -1;
+        int j = 0;
+        for (Project project: listProjects) {
+            if (project.getProjectID() == this.projectID) {
+                return j;
+            }
+            j++;
+        }
+        throw new Exception("Failed to find index of Project.");
+    }
 }

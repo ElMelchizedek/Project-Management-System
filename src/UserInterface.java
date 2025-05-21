@@ -398,7 +398,9 @@ public class UserInterface {
 
     // DESC: Provides an interactive wizard to remove a Project from.
     // USAGE: main().
-    private static void optionRemoveProject(Scanner input) {
+    private static Project[] optionRemoveProject(Scanner input, Project[] listProjects) {
+        Project[] newList = new Project[10];
+
         System.out.println("*** Project Removal Wizard ***");
 
         System.out.print("Please enter ID of Project to be removed: ");
@@ -409,17 +411,19 @@ public class UserInterface {
             break;
         }
 
-//        if (project1 != null && project1.getProjectID() == ID) {
-//            project1 = null;
-//            return;
-//        } else if (project2 != null && project2.getProjectID() == ID) {
-//            project2 = null;
-//            return;
-//        } else if (project3 != null && project3.getProjectID() == ID) {
-//            project3 = null;
-//            return;
-//        }
-        System.out.println("ID does not match any known Project ID. Aborting...");
+        int j = 0;
+        for (Project project: listProjects) {
+            int index = -1;
+
+            if (project != null) {
+                if (project.getProjectID() != ID) {
+                    newList[j] = project;
+                    j++;
+                }
+            }
+        }
+
+        return newList;
     }
 
     // DESC: Provides an interactive wizard to create a Task from.
@@ -683,7 +687,7 @@ public class UserInterface {
                         break;
                     // Remove Project.
                     case "RP":
-                        optionRemoveProject(input);
+                        projects = optionRemoveProject(input, projects);
                         break;
                     // Create Task.
                     case "CT":
