@@ -415,13 +415,13 @@ public class UserInterface {
             break;
         }
 
-        if (project1.getProjectID() == ID) {
+        if (project1 != null && project1.getProjectID() == ID) {
             project1 = null;
             return;
-        } else if (project2.getProjectID() == ID) {
+        } else if (project2 != null && project2.getProjectID() == ID) {
             project2 = null;
             return;
-        } else if (project3.getProjectID() == ID) {
+        } else if (project3 != null && project3.getProjectID() == ID) {
             project3 = null;
             return;
         }
