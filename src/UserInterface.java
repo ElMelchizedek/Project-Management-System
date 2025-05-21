@@ -5,11 +5,6 @@ public class UserInterface {
     !!! GLOBAL VARIABLES !!!
      */
 
-    // *** Private variables to be accessed and manipulated via setters and getters. ***
-    private static Project project1 = null;
-    private static Project project2 = null;
-    private static Project project3 = null;
-
     // Constant needed for auxCalculateAverageDuration(), as a way to distinguish calls made to calculate durations for
     // a specific project, or for durations of a certain type across all projects.
     public static final double SECRET_NUMBER = 5051818;
@@ -29,12 +24,16 @@ public class UserInterface {
 
     // *** Auxiliary methods. ***
 
-    // DESC: Prints an acknowledgement to the user of creation and then returns IDsProjects modified to have the
-    // new Project's ID appended. 
-    // USAGE: optionCreateProject().
-    private static String auxAssignProject(int ID, String type, String valueID, String IDsProjects) {
-        System.out.println("Created Project #" + ID + " of type " + type + ".");
-        return IDsProjects.concat(valueID + ",");
+    public static Project[] auxAddToArray(Project[] array, Project item) {
+        int i = 0;
+        for (; i < array.length; i++) {
+            if (array[i] == null) {
+                array[i] = item;
+                return array;
+            }
+        }
+
+        return null;
     }
 
     // USAGE: Display info of the specified Task.
@@ -330,76 +329,64 @@ public class UserInterface {
 
     // DESC: Provides an interactive wizard to create a Project from.
     // USAGE: main()
-    private static String optionCreateProject(Scanner input, int amountProjects, String IDsProjects) {
+    private static Project optionCreateProject(Scanner input, Project[] projects) {
         // Variables
-        String[] permittedTypes = {"SMALL", "MEDIUM", "LARGE"};
         Project tempProject = null;
+        boolean finished = false;
+        // Used to contain already inputted data in case of thrown exceptions from Project.createProject()
+        int ID = -1;
+        String name = SECRET_STRING;
+        String type = SECRET_STRING;
 
         System.out.println("*** Project Wizard ***");
 
-        if (amountProjects > 3) {
-            System.out.println("ERROR: Maximum amount of concurrent projects already reached! Aborting project creation process...");
-            return "";
-        }
-
-        System.out.print("Enter ID for new Project: ");
-        int ID;
-        String valueID;
-        while (true) {
-            ID = auxCheckInputValid(0, input);
-            if (ID == -1) { continue; }
-            valueID = String.valueOf(ID);
-            if (IDsProjects.contains(valueID + ",")) {
-                System.out.print("Project ID already in use. Please try again: ");
-                continue;
-            }
-            break;
-        }
-
-        System.out.print("Enter name for new project: ");
-        String name;
-        while (true) {
-           name = auxCheckInputValid("", input);
-           if (name.equals(SECRET_STRING)) { continue; }
-           break;
-        }
-
-        System.out.print("Enter type for new project (options: \"small\", \"medium\", or \"large\"): ");
-        String type;
-        while(true) {
-            type = auxCheckInputValid("", input);
-            if (type.equals(SECRET_STRING)) { continue; }
-
-            for (int i = 0; i <= permittedTypes.length; i++) {
-                if (type.toUpperCase().equals(permittedTypes[i])) {
-                    try {
-                        tempProject = new Project(ID, name, permittedTypes[i]);
-                        break;
-                    } catch (Exception e){
-                        System.out.println("ERROR: " + e.getMessage());
+        while (!finished) {
+            // Input work.
+            if (ID == -1) {
+                System.out.print("Enter ID for new Project: ");
+                while (true) {
+                    ID = auxCheckInputValid(0, input);
+                    if (ID == -1) {
+                        continue;
                     }
+                    break;
                 }
             }
-            if (tempProject == null) {
-                System.out.println("Unknown Project type. Please try again: ");
-                continue;
+
+            if (name.equals(SECRET_STRING)) {
+                System.out.print("Enter name for new project: ");
+                while (true) {
+                    name = auxCheckInputValid("", input);
+                    if (name.equals(SECRET_STRING)) {
+                        continue;
+                    }
+                    break;
+                }
             }
 
-            break;
+            if (type.equals(SECRET_STRING)) {
+                System.out.print("Enter type for new project (options: \"small\", \"medium\", or \"large\"): ");
+                while (true) {
+                    type = auxCheckInputValid("", input);
+                    if (type.equals(SECRET_STRING)) {
+                        continue;
+                    }
+                    break;
+                }
+            }
+
+            // Actual creation, making sure to check for exceptions.
+            try {
+                tempProject = Project.createProject(projects, ID, name, type);
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getMessage());
+                System.out.println("Re-attempting creation...");
+            };
+            finished = true;
+            System.out.println("Created Project #" + ID + " of name " + name + " and type " + ".");
         }
 
-        if (project1 == null) {
-            project1 = tempProject;
-            return auxAssignProject(ID, type, valueID, IDsProjects);
-        } else if (project2 == null) {
-            project2 = tempProject;
-            return auxAssignProject(ID, type, valueID, IDsProjects);
-        } else if (project3 == null) {
-            project3 = tempProject;
-            return auxAssignProject(ID, type, valueID, IDsProjects);
-        }
-
-        return "";
+        return tempProject;
     }
 
     // DESC: Provides an interactive wizard to remove a Project from.
@@ -616,8 +603,8 @@ public class UserInterface {
         boolean init = false;
         boolean test = false;
 
-        int amountProjects = 0;
-        String IDsProjects = "";
+        Project[] projects = new Project[10];
+
         String help = """
                 Options (case-insensitive):
                 \t * Q: quit\s
@@ -660,12 +647,15 @@ public class UserInterface {
                         break;
                     // Create Project.
                     case "CP":
-                        String tempIDsProjects = optionCreateProject(input, amountProjects, IDsProjects);
-                        if (tempIDsProjects.isEmpty()) {
-                            System.out.println("ERROR: Unknown error. Aborting project creation process...");
-                            break;
+                        Project newProject = optionCreateProject(input, projects);
+                        if (newProject == null) {
+                            System.out.println("ERROR: Unknown error failed Project creation.");
+                        } else {
+                            Project[] tempProjects = auxAddToArray(projects, newProject);
+                            if (tempProjects == null) {
+                                System.out.println("ERROR: Failed to add new Project to array.");
+                            }
                         }
-                        IDsProjects = tempIDsProjects;
                         break;
                     // Display Info.
                     case "D":

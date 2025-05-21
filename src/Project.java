@@ -1,3 +1,5 @@
+import java.util.Random;
+
 public class Project {
     // Variables that can be accessed via setters/getters.
     private int projectID;
@@ -10,9 +12,14 @@ public class Project {
 
     // Internal variables.
     private String allTaskIDs = "";
-    private final String permittedTypes = "SMALLMEDIUMLARGE";
+    private final String[] permittedTypes = {"SMALL", "MEDIUM", "LARGE"};
 
     // Constructor.
+    public Project() {
+        this.projectID = -1;
+        this.projectName = "";
+        this.projectType = "";
+    }
     public Project(int ID, String name, String type) throws Exception {
         // Make sure that the soon-to-be project does not have an ID already in use.
         setProjectID(ID);
@@ -38,19 +45,38 @@ public class Project {
     }
 
     // Setters.
-    public void setProjectID( int ID ) { this.projectID = ID; }
-    public void setProjectName( String name ) { this.projectName = name; }
+    public void setProjectID( int ID, Project[] listProjects ) throws Exception {
+        Random random = new Random();
+
+        for (Project project: listProjects) {
+            if (project.getProjectID() == ID) {
+                this.projectID = random.nextInt(1000);
+                throw new Exception("Project ID already in use. Assigned a randomly generated ID instead.");
+            }
+        }
+        this.projectID = ID;
+    }
+    public void setProjectName( String name ) throws Exception {
+        if (name.isEmpty()) {
+            throw new Exception("Empty strings are not permitted to be Project names.");
+        }
+        this.projectName = name;
+    }
     public void setProjectType( String type ) throws Exception {
         type = type.toUpperCase();
-        if (!permittedTypes.contains(type)) {
-            throw new Exception("Specified Task Type is not permitted!");
+        boolean isCorrect = false;
+        for (String realType : permittedTypes) {
+             if (type.equals(realType)) {
+                 isCorrect = true;
+                 break;
+             }
         }
-        switch (type) {
-            case "SMALL" -> this.projectType = "Small";
-            case "MEDIUM" -> this.projectType = "Medium";
-            case "LARGE" -> this.projectType = "Large";
+        if (!isCorrect) {
+            throw new Exception("Inputted type is not permitted.");
         }
-    }
+        String lowercase = type.toLowerCase();
+        this.projectType = (Character.toUpperCase(lowercase.charAt(0)) + lowercase.substring(1));
+}
 
     // Methods relating to Tasks.
     public void createTask(int ID, String description, String type, int duration, boolean completed) throws Exception {
@@ -123,4 +149,17 @@ public class Project {
         return null;
     }
 
+    public static Project createProject(Project[] listProjects, int newID, String newName, String newType) throws Exception {
+        Project tempProject = new Project();
+
+        if (listProjects.length > 10) {
+            throw new Exception("Maximum amount of concurrent projects already reached! Aborting project creation process...");
+        }
+
+        tempProject.setProjectID(newID, listProjects);
+        tempProject.setProjectName(newName);
+        tempProject.setProjectType(newType);
+
+        return tempProject;
+    }
 }
