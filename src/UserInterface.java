@@ -77,15 +77,13 @@ public class UserInterface {
 
     // DESC: Gets one of the three Project variables required by the specifications, using its ID.
     // USAGE: optionCreateTask().
-    private static Project auxGetProjectByID(int ProjectID) {
+    private static Project auxGetProjectByID(int ProjectID, Project[] listProjects) {
         Project certainProject = null;
-//        if (project1 != null && project1.getProjectID() == ProjectID) {
-//            certainProject = project1;
-//        } else if (project2 != null && project2.getProjectID() == ProjectID) {
-//            certainProject = project2;
-//        } else if (project3 != null && project3.getProjectID() == ProjectID) {
-//            certainProject = project3;
-//        }
+        for (Project project: listProjects) {
+            if (project != null && project.getProjectID() == ProjectID) {
+                certainProject = project;
+            }
+        }
 
         return certainProject;
     }
@@ -93,21 +91,22 @@ public class UserInterface {
     // DESC: Typical prompt request grabbing Project by ID, isolated due to being repeated in multiple methods.
     // USAGE: optionEditTask(), optionRemoveTask(), and dispCompleteTasks().
     private static Project auxDialogueGetProject(Scanner input) {
-        Project certainProject;
-        System.out.print("Enter ID of Project: ");
-        int ProjectID;
-        while (true) {
-            ProjectID = auxCheckInputValid(0, input);
-            if (ProjectID == -1) { continue; }
+//        Project certainProject;
+//        System.out.print("Enter ID of Project: ");
+//        int ProjectID;
+//        while (true) {
+//            ProjectID = auxCheckInputValid(0, input);
+//            if (ProjectID == -1) { continue; }
 
-            certainProject = auxGetProjectByID(ProjectID);
-            if (certainProject == null) {
-                System.out.print("ERROR: Entered Project ID does not match any existing Project. Please try again: ");
-                continue;
-            }
-            break;
-        }
-        return certainProject;
+////            certainProject = auxGetProjectByID(ProjectID);
+////            if (certainProject == null) {
+////                System.out.print("ERROR: Entered Project ID does not match any existing Project. Please try again: ");
+////                continue;
+////            }
+//            break;
+//        }
+//        return certainProject;
+        return null;
     }
 
     // DESC: Returns a String containing numbers indicating which Tasks in a Project have the type specified.
@@ -425,7 +424,7 @@ public class UserInterface {
 
     // DESC: Provides an interactive wizard to create a Task from.
     // USAGE: main().
-    private static void optionCreateTask(Scanner input) {
+    private static void optionCreateTask(Scanner input, Project[] listProjects) {
         Project certainProject = null;
         boolean finished = false;
         // Pre-initialised parameter for Project.createTask().
@@ -446,9 +445,9 @@ public class UserInterface {
                     if (ProjectID == -1) {
                         continue;
                     }
-                    certainProject = auxGetProjectByID(ProjectID);
+                    certainProject = auxGetProjectByID(ProjectID, listProjects);
                     if (certainProject == null) {
-                        System.out.println("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
+                        System.out.print("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
                         continue;
                     }
                     break;
@@ -688,7 +687,7 @@ public class UserInterface {
                         break;
                     // Create Task.
                     case "CT":
-                        optionCreateTask(input);
+                        optionCreateTask(input, projects);
                         break;
                     // Edit Task.
                     case "ET":

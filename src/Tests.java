@@ -89,4 +89,6 @@ public class Tests {
         UserInterface.auxPrettyAverageTypeDurationsByProject(project2, 99);
         return true;
     }
+
+
 }
