@@ -53,7 +53,7 @@ public class UserInterface {
 
     // DESC: Displays details of a selected Project and the Tasks assigned to it.
     // USAGE: optionViewProjects() and dispFilteredTasks().
-    private static void auxViewProject(Project project, String chosenTasks) {
+    private static void auxViewProject(Project project, int[] chosenTasks) {
         if (project != null) {
             int amountTasks = project.amountTasks();
             if (amountTasks != 0) {
@@ -62,15 +62,15 @@ public class UserInterface {
                         ", Project Type: " + project.getProjectType() +
                         ", Num of tasks: " + amountTasks);
                 System.out.println("Tasks:");
-                if (chosenTasks.contains("1")) {
-                    auxTaskPrettyInfo(project.getTask(1), true);
+
+                for (Task task: project.getListTasks()) {
+                    for (int ID: chosenTasks) {
+                        if (task.getTaskID() == ID) {
+                            auxTaskPrettyInfo(task, true);
+                        }
+                    }
                 }
-                if (chosenTasks.contains("2")) {
-                    auxTaskPrettyInfo(project.getTask(2), true);
-                }
-                if (chosenTasks.contains("3")) {
-                    auxTaskPrettyInfo(project.getTask(3), true);
-                }
+
             } else { System.out.println("No Tasks to report for Project #" + project.getProjectID() + "."); }
         }
     }
@@ -116,14 +116,14 @@ public class UserInterface {
     private static String auxFilterTypes(Project project, char type) {
         String matchingTasks = "";
 
-        if (project != null) {
-            for (int i = 1; i <= 3; i++) {
-                if (project.getTask(i) != null
-                && project.getTask(i).getTaskType() == type) {
-                   matchingTasks = matchingTasks.concat(String.valueOf(i));
-                }
-            }
-        }
+//        if (project != null) {
+//            for (int i = 1; i <= 3; i++) {
+//                if (project.getTask(i) != null
+//                && project.getTask(i).getTaskType() == type) {
+//                   matchingTasks = matchingTasks.concat(String.valueOf(i));
+//                }
+//            }
+//        }
 
         return matchingTasks;
     }
@@ -134,9 +134,9 @@ public class UserInterface {
     private static double auxCalculateAverageDuration(Project project, String matches, int stopAtProject) {
         int sumDurations = 0;
         int amountMatching = 0;
-        if (matches.contains("1")) { sumDurations += project.getTask(1).getTaskDuration(); amountMatching++; }
-        if (matches.contains("2")) { sumDurations += project.getTask(2).getTaskDuration(); amountMatching++; }
-        if (matches.contains("3")) { sumDurations += project.getTask(3).getTaskDuration(); amountMatching++; }
+//        if (matches.contains("1")) { sumDurations += project.getTask(1).getTaskDuration(); amountMatching++; }
+//        if (matches.contains("2")) { sumDurations += project.getTask(2).getTaskDuration(); amountMatching++; }
+//        if (matches.contains("3")) { sumDurations += project.getTask(3).getTaskDuration(); amountMatching++; }
         // Here I do some funky stuff since I can't just return an array, so I need to be able to distinguish different
         // outcomes whilst not being able to have multiple return types for the method.
         // To differentiate I do this by multiplying the number by a defined power of 10 that is then checked by the
@@ -194,13 +194,13 @@ public class UserInterface {
     public static void auxPrettyAverageTypeDurationsByProject(Project project, int num) {
         if (project != null) {
             System.out.println("Project ID " + project.getProjectID() + ":");
-            if (!project.getAllTaskIDs().equals("")) {
-                System.out.println("\t* Average task duration of administrative tasks is " + auxGetAverageTypeDurations('A', num) + ".");
-                System.out.println("\t* Average task duration of logistics tasks is " + auxGetAverageTypeDurations('L', num) + ".");
-                System.out.println("\t* Average task duration of support tasks is " + auxGetAverageTypeDurations('S', num) + ".");
-            } else {
-                System.out.println("\t* No created tasks to report.");
-            }
+//            if (!project.getAllTaskIDs().equals("")) {
+//                System.out.println("\t* Average task duration of administrative tasks is " + auxGetAverageTypeDurations('A', num) + ".");
+//                System.out.println("\t* Average task duration of logistics tasks is " + auxGetAverageTypeDurations('L', num) + ".");
+//                System.out.println("\t* Average task duration of support tasks is " + auxGetAverageTypeDurations('S', num) + ".");
+//            } else {
+//                System.out.println("\t* No created tasks to report.");
+//            }
         }
     }
 
@@ -244,7 +244,17 @@ public class UserInterface {
 
     // DESC: Displaying All Project Details
     // USAGE: optionDisplay().
-    private static void dispViewProjects() {
+    private static void dispViewProjects(Project[] listProjects) {
+        for (Project project : listProjects) {
+            if (project != null) {
+                int length = project.amountTasks();
+                int[] IDs = new int[length];
+                for (int i = 0; i < length; i++) {
+                    IDs[i] = project.getListTasks()[i].getTaskID();
+                }
+                auxViewProject(project, IDs);
+            }
+        }
 //        if (project1 != null) {
 //            auxViewProject(project1, "123");
 //        }
@@ -265,12 +275,12 @@ public class UserInterface {
         if (certainProject == null) { return; }
 
         System.out.println("Completed Tasks in Project #" + certainProject.getProjectID() + ".");
-        Task task1 = certainProject.getTask(1);
-        Task task2 = certainProject.getTask(2);
-        Task task3 = certainProject.getTask(3);
-        if (task1 != null && task1.getCompleted()) { auxTaskPrettyInfo(task1, false); }
-        if (task2 != null && task2.getCompleted()) { auxTaskPrettyInfo(task2, false); }
-        if (task3 != null && task3.getCompleted()) { auxTaskPrettyInfo(task3, false); }
+//        Task task1 = certainProject.getTask(1);
+//        Task task2 = certainProject.getTask(2);
+//        Task task3 = certainProject.getTask(3);
+//        if (task1 != null && task1.getCompleted()) { auxTaskPrettyInfo(task1, false); }
+//        if (task2 != null && task2.getCompleted()) { auxTaskPrettyInfo(task2, false); }
+//        if (task3 != null && task3.getCompleted()) { auxTaskPrettyInfo(task3, false); }
 
     }
 
@@ -284,10 +294,10 @@ public class UserInterface {
         while (true) {
             filter = auxCheckInputValid("", input);
             if (filter.equals(SECRET_STRING)) { continue; }
-            if (filter.length() != 1 || !Task.permittedTypes.contains(filter.toUpperCase())) {
-                System.out.print("ERROR: Invalid filter type entered. Please try again: ");
-                continue;
-            }
+//            if (filter.length() != 1 || !Task.permittedTypes.contains(filter.toUpperCase())) {
+//                System.out.print("ERROR: Invalid filter type entered. Please try again: ");
+//                continue;
+//            }
             break;
         }
 
@@ -352,7 +362,6 @@ public class UserInterface {
                     break;
                 }
             }
-
             if (name.equals(SECRET_STRING)) {
                 System.out.print("Enter name for new project: ");
                 while (true) {
@@ -363,7 +372,6 @@ public class UserInterface {
                     break;
                 }
             }
-
             if (type.equals(SECRET_STRING)) {
                 System.out.print("Enter type for new project (options: \"small\", \"medium\", or \"large\"): ");
                 while (true) {
@@ -418,75 +426,88 @@ public class UserInterface {
     // DESC: Provides an interactive wizard to create a Task from.
     // USAGE: main().
     private static void optionCreateTask(Scanner input) {
+        Project certainProject = null;
+        boolean finished = false;
+        // Pre-initialised parameter for Project.createTask().
+        int newID = -1;
+        String newDescription = SECRET_STRING;
+        String newType = SECRET_STRING;
+        int newDuration = -1;
+        int ProjectID = -1;
+
         System.out.println("*** Task Wizard ***");
-        Project certainProject;
 
-        System.out.print("Enter ID of Project you would like to a create a Task for: ");
-        int ProjectID;
-        while (true) {
-            ProjectID = auxCheckInputValid(0, input);
-            if (ProjectID == -1) { continue; }
-            certainProject = auxGetProjectByID(ProjectID);
-            if (certainProject == null) {
-                System.out.println("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
-                continue;
+        while (!finished) {
+
+            if (ProjectID == -1) {
+                System.out.print("Enter ID of Project you would like to a create a Task for: ");
+                while (true) {
+                    ProjectID = auxCheckInputValid(0, input);
+                    if (ProjectID == -1) {
+                        continue;
+                    }
+                    certainProject = auxGetProjectByID(ProjectID);
+                    if (certainProject == null) {
+                        System.out.println("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
+                        continue;
+                    }
+                    break;
+                }
             }
-            break;
-        }
 
-        System.out.print("Enter ID for new Task: ");
-        int newID;
-        while (true) {
-            newID = auxCheckInputValid(0, input);
-            if (newID == -1) { continue; }
-
-            String valueID = String.valueOf(newID);
-            if (certainProject.getAllTaskIDs() != null && certainProject.getAllTaskIDs().contains(valueID + ",")) {
-                System.out.print("ERROR: Duplicate Task ID! Please try again: ");
-                continue;
+            if (newID == -1) {
+                System.out.print("Enter ID for new Task: ");
+                while (true) {
+                    newID = auxCheckInputValid(0, input);
+                    if (newID == -1) {
+                        continue;
+                    }
+                    break;
+                }
             }
-            break;
-        }
 
-        System.out.print("Enter a brief description of the new Task: ");
-        String newDescription;
-        while (true) {
-            newDescription = auxCheckInputValid("", input);
-            if (newDescription.equals(SECRET_STRING)) { continue; }
-            break;
-        }
-
-        System.out.print("Enter the Task type ([A]dministrative, [L]ogistics, or [S]upport: ");
-        String newType;
-        while (true) {
-            newType = auxCheckInputValid("", input);
-            if (newType.equals(SECRET_STRING)) { continue; }
-            newType = newType.toUpperCase();
-            if (newType.length() != 1) {
-                System.out.print("ERROR: Task type was not specified with a single character. Please try again: ");
-                continue;
+            if (newDescription.equals(SECRET_STRING)) {
+                System.out.print("Enter a brief description of the new Task: ");
+                while (true) {
+                    newDescription = auxCheckInputValid("", input);
+                    if (newDescription.equals(SECRET_STRING)) {
+                        continue;
+                    }
+                    break;
+                }
             }
-            if (!"ALS".contains(newType)) {
-                System.out.println("ERROR: Specified Task type is not [A]dministrative, [L]ogistics, or [S]upport. Please try again: ");
-                continue;
+
+            if (newType.equals(SECRET_STRING)) {
+                System.out.print("Enter the Task type ([A]dministrative, [L]ogistics, or [S]upport: ");
+                while (true) {
+                    newType = auxCheckInputValid("", input);
+                    if (newType.equals(SECRET_STRING)) {
+                        continue;
+                    }
+                    break;
+                }
             }
-            break;
-        }
 
-        System.out.print("Enter estimated or actual type spent on new Task: ");
-        int newDuration;
-        while (true) {
-            newDuration = auxCheckInputValid(0, input);
-            if (newDuration == -1) { continue; }
-            break;
-        }
+            if (newDuration == -1) {
+                System.out.print("Enter estimated or actual type spent on new Task: ");
+                while (true) {
+                    newDuration = auxCheckInputValid(0, input);
+                    if (newDuration == -1) {
+                        continue;
+                    }
+                    break;
+                }
+            }
 
-        try {
-            certainProject.createTask(newID, newDescription, newType, newDuration, false);
+            try {
+                certainProject.createTask(newID, newDescription, newType, newDuration);
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getMessage());
+            }
+            finished = true;
             System.out.println("Created Task #" + newID + " of type " + newType + " lasting " + newDuration + "h, assigned to Project #" + newID + ".");
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
         }
+
     }
 
     // DESC: Provides an interactive wizard to edit a Task from.
@@ -503,31 +524,31 @@ public class UserInterface {
             TaskID = auxCheckInputValid(0, input);
             if (TaskID == -1) { continue; }
 
-            certainTask = certainProject.retrieveTaskByID(TaskID);
-            if (certainTask == null) {
-                System.out.print("Entered Task ID does not match any existing Task within selected Project. Please try again: ");
-                continue;
-            }
+//            certainTask = certainProject.retrieveTaskByID(TaskID);
+//            if (certainTask == null) {
+//                System.out.print("Entered Task ID does not match any existing Task within selected Project. Please try again: ");
+//                continue;
+//            }
             break;
         }
 
-        System.out.print("Would you like to edit the completed status of the selected Task? (currently: " + certainTask.status() + ") [y/n] ");
-        String choice;
-        while(true) {
-            choice = auxCheckInputValid("", input);
-            if (choice.equals(SECRET_STRING)) { continue; }
-            choice = choice.toLowerCase();
-
-            if (choice.equals("y")) {
-                certainTask.setCompleted(!certainTask.getCompleted());
-                System.out.println("Status of Task #" + certainTask.getTaskID()
-                        + " of Project #" + certainProject.getProjectID()
-                        + " is now " + certainTask.status() + ".");
-            } else {
-                System.out.println("Exhausted all attributes of Task to edit. Returning...");
-            }
-            return;
-        }
+//        System.out.print("Would you like to edit the completed status of the selected Task? (currently: " + certainTask.status() + ") [y/n] ");
+//        String choice;
+//        while(true) {
+//            choice = auxCheckInputValid("", input);
+//            if (choice.equals(SECRET_STRING)) { continue; }
+//            choice = choice.toLowerCase();
+//
+//            if (choice.equals("y")) {
+//                certainTask.setCompleted(!certainTask.getCompleted());
+//                System.out.println("Status of Task #" + certainTask.getTaskID()
+//                        + " of Project #" + certainProject.getProjectID()
+//                        + " is now " + certainTask.status() + ".");
+//            } else {
+//                System.out.println("Exhausted all attributes of Task to edit. Returning...");
+//            }
+//            return;
+//        }
     }
 
     // DESC: Provides an interactive wizard to remove a Task from.
@@ -556,7 +577,7 @@ public class UserInterface {
 
     // DESC: Interactive portal used to allow the user to interface with the 'disp' methods
     // USAGE: main().
-    private static void optionDisplay(Scanner input) {
+    private static void optionDisplay(Scanner input, Project[] listProjects) {
         String options = """ 
                         Options for Display:
                         \t *1: Exit to Project Management System.
@@ -575,7 +596,7 @@ public class UserInterface {
             if (line == -1) { continue; }
             switch (line) {
                 case 2:
-                    dispViewProjects();
+                    dispViewProjects(listProjects);
                     break;
                 case 3:
                     dispCompleteTasks(input);
@@ -659,7 +680,7 @@ public class UserInterface {
                         break;
                     // Display Info.
                     case "D":
-                        optionDisplay(input);
+                        optionDisplay(input, projects);
                         break;
                     // Remove Project.
                     case "RP":

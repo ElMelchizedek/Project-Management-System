@@ -38,7 +38,7 @@ public class Tests {
                     index = 2;
                 }
             try {
-                projects[index].createTask(Integer.parseInt(taskInputs[i][0]), taskInputs[i][1], taskInputs[i][2], Integer.parseInt(taskInputs[i][3]), false);
+                projects[index].createTask(Integer.parseInt(taskInputs[i][0]), taskInputs[i][1], taskInputs[i][2], Integer.parseInt(taskInputs[i][3]));
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
             }
@@ -70,7 +70,7 @@ public class Tests {
         if (project1 != null) {
             for (int i = 0; i < taskInputs.length; i++) {
                 try {
-                    project1.createTask(Integer.parseInt(taskInputs[i][0]), taskInputs[i][1], taskInputs[i][2], Integer.parseInt(taskInputs[i][3]), false);
+                    project1.createTask(Integer.parseInt(taskInputs[i][0]), taskInputs[i][1], taskInputs[i][2], Integer.parseInt(taskInputs[i][3]));
                 } catch (Exception e) {
                     System.out.println("ERROR: " + e.getMessage());
                 }

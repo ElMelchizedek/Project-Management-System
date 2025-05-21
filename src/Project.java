@@ -2,16 +2,15 @@ import java.util.Random;
 
 public class Project {
     // Variables that can be accessed via setters/getters.
+    private Task[] listTasks;
     private int projectID;
     private String projectName;
-    private Task task1 = null, task2 = null, task3 = null;
     private String projectType;
     // Project Types:   "Small" = Max 1 task.
     //                  "Medium" = Max 2 tasks.
     //                  "Large" = Max 3 tasks.
 
     // Internal variables.
-    private String allTaskIDs = "";
     private final String[] permittedTypes = {"SMALL", "MEDIUM", "LARGE"};
 
     // Constructor.
@@ -19,6 +18,7 @@ public class Project {
         this.projectID = -1;
         this.projectName = "";
         this.projectType = "";
+        this.listTasks = new Task[0];
     }
     public Project(int ID, String name, String type, Project[] listProjects) throws Exception {
         // Make sure that the soon-to-be project does not have an ID already in use.
@@ -30,19 +30,8 @@ public class Project {
     // Getters.
     public String getProjectName() { return projectName; }
     public int getProjectID() { return projectID; }
-    public String getAllTaskIDs() { return allTaskIDs; }
     public String getProjectType() { return projectType; }
-    public Task getTask(int number) {
-        if (number == 1) {
-            return task1;
-        } else if (number == 2) {
-            return task2;
-        } else if (number == 3) {
-            return task3;
-        } else {
-            return null;
-        }
-    }
+    public Task[] getListTasks() { return listTasks; }
 
     // Setters.
     public void setProjectID( int ID, Project[] listProjects ) throws Exception {
@@ -77,76 +66,63 @@ public class Project {
         String lowercase = type.toLowerCase();
         this.projectType = (Character.toUpperCase(lowercase.charAt(0)) + lowercase.substring(1));
 }
+    public void setListTasks( String type ) throws Exception {
+       if (type.equals("SMALL")) {
+           this.listTasks = new Task[1];
+       } else if (type.equals("MEDIUM")) {
+           this.listTasks = new Task[2];
+       } else if (type.equals("LARGE")) {
+           this.listTasks = new Task[3];
+       } else {
+           throw new Exception("Unknown Project type passed to Project.setListTasks().");
+       }
+    }
 
     // Methods relating to Tasks.
-    public void createTask(int ID, String description, String type, int duration, boolean completed) throws Exception {
-        if (task1 == null) {
-            task1 = new Task(ID, description, type, duration, completed, this);
-        } else if ((task2 == null) && (!projectType.equalsIgnoreCase("SMALL"))) {
-            task2 = new Task(ID, description, type, duration, completed, this);
-        } else if ((task3 == null) && (projectType.equalsIgnoreCase("LARGE"))) {
-            task3 = new Task(ID, description, type, duration, completed, this);
-        } else {
-            throw new Exception("Maximum amount of concurrent tasks for Project #" + this.projectID + " has already been reached!");
+    public void createTask(int ID, String description, String type, int duration) throws Exception {
+        for (int i = 0; i < listTasks.length; i++) {
+            if (listTasks[i] == null) {
+                listTasks[i] = Task.createTask(this, ID, description, type, duration);
+            }
         }
 
     }
-    public void addTaskID(String ID) {
-        if (this.allTaskIDs != null) {
-            this.allTaskIDs = allTaskIDs.concat(ID + ",");
-        } else {
-            this.allTaskIDs = ID.concat(",");
-        }
-    }
-    private void clearAllTaskIDs() { allTaskIDs = ""; }
 
     // Other methods relating to the Project itself and its Tasks.
     public int deleteTask(int ID) throws Exception {
         Task removedTask;
-        if ((task1 != null) && (task1.getTaskID() == ID)) {
-            removedTask = task1;
-            task1 = null;
-        } else if ((task2 != null) && (task2.getTaskID() == ID)) {
-            removedTask = task2;
-            task2 = null;
-        } else if ((task3 != null) && (task3.getTaskID() == ID)) {
-            removedTask = task3;
-            task3 = null;
-        } else {
-            throw new Exception("Invalid Task ID used to request deletion from Project #" + this.projectID + "!");
+
+        boolean found = false;
+        for (Task task: listTasks) {
+            if (task != null && task.getTaskID() == ID) {
+                removedTask = task;
+                task = null;
+                break;
+            }
         }
-        // Removes removed task's ID from allTaskIDs.
-        clearAllTaskIDs();
-        if ( removedTask != task1 ) { addTaskID(Integer.toString(task1.getTaskID())); }
-        if ( removedTask != task2 ) { addTaskID(Integer.toString(task2.getTaskID())); }
-        if ( removedTask != task3 ) { addTaskID(Integer.toString(task3.getTaskID())); }
+        if (!found) {
+            throw new Exception("Could not find Task for deletion from inputted Project ID.");
+        }
 
         return this.projectID;
     }
 
-    public int amountTasks() {
-        int amountTasks = 0;
-        String IDs = getAllTaskIDs();
-        if (IDs != null) {
-            for (int i = 0; i < IDs.length(); i++) {
-                if (IDs.charAt(i) == ',') {
-                    amountTasks++;
-                }
+    public Task retrieveTaskByID(int ID) throws Exception {
+        for (Task task: listTasks) {
+            if (task.getTaskID() == ID) {
+                return task;
             }
-            return amountTasks;
         }
-        return 0;
+
+        throw new Exception("Could not retrieve Task by specified ID.");
     }
 
-    public Task retrieveTaskByID(int ID) {
-        if (task1.getTaskID() == ID) {
-            return getTask(1);
-        } else if (task2.getTaskID() == ID) {
-            return getTask(2);
-        } else if (task3.getTaskID() == ID) {
-            return getTask(3);
+    public int amountTasks() {
+        int amount = 0;
+        for (Task task: listTasks) {
+            if (task != null) { amount++; }
         }
-        return null;
+        return amount;
     }
 
     public static Project createProject(Project[] listProjects, int newID, String newName, String newType) throws Exception {
@@ -159,7 +135,18 @@ public class Project {
         tempProject.setProjectID(newID, listProjects);
         tempProject.setProjectName(newName);
         tempProject.setProjectType(newType);
+        tempProject.setListTasks(newType.toUpperCase());
 
         return tempProject;
+    }
+
+    // Imperative to not fill up listTasks out of order: only sequentially please.
+    public boolean checkListTasksFull() {
+        if ((projectType.equals("Small") && listTasks[0] != null) ||
+                (projectType.equals("Medium") && listTasks[1] != null) ||
+                (projectType.equals("Large") && listTasks[2] != null)) {
+            return true;
+        }
+        return false;
     }
 }
