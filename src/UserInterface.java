@@ -305,11 +305,18 @@ public class UserInterface {
     // DESC: Average Task Type Durations
     // USAGE: optionDisplay().
     private static void dispAverageTypeDurations() {
+        String[][] types = {{"A", "administrative"}, {"L", "logistics"}, {"S", "support"}};
+
         System.out.println("---Average Task Duration---");
         System.out.println("Average task duration of all task types across all projects:");
-        System.out.println("\t* Average task duration of all administrative tasks is " + auxGetAverageTypeDurations('A', 0) + " hours.");
-        System.out.println("\t* Average task duration of all logistics tasks is " + auxGetAverageTypeDurations('L', 0) + " hours.");
-        System.out.println("\t* Average task duration of all support tasks is " + auxGetAverageTypeDurations('S', 0) + " hours.");
+        for (int i = 0; i < types.length; i++) {
+           double duration = auxGetAverageTypeDurations(types[i][0].charAt(0), 0);
+           if (duration != Float.NaN) {
+               System.out.println("\t* Average task duration of all " + types[i][1] + " is " + duration + " hours.");
+           } else {
+               System.out.print("\t* There is no " + types[i][1] + " to calculate the average duration of.");
+           }
+        }
 
         System.out.println("---Breakdown by Project---");
         auxPrettyAverageTypeDurationsByProject(project1, 1);

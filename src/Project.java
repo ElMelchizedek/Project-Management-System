@@ -9,7 +9,7 @@ public class Project {
     //                  "Large" = Max 3 tasks.
 
     // Internal variables.
-    private String allTaskIDs;
+    private String allTaskIDs = "";
     private final String permittedTypes = "SMALLMEDIUMLARGE";
 
     // Constructor.
