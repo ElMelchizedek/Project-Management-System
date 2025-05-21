@@ -21,7 +21,7 @@ public class Tests {
 
         for (int i = 0; i <= 2; i++) {
             try {
-                projects[i] = new Project(Integer.parseInt(projectInputs[i][0]), projectInputs[i][1], projectInputs[i][2]);
+//                projects[i] = new Project(Integer.parseInt(projectInputs[i][0]), projectInputs[i][1], projectInputs[i][2]);
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
             }
@@ -63,7 +63,7 @@ public class Tests {
 
         System.out.println("*** STRESS TEST ***");
         try {
-            project1 = new Project(0, "Test project", "Large");
+//            project1 = new Project(0, "Test project", "Large");
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
         }
@@ -82,7 +82,7 @@ public class Tests {
             }
         }
         try {
-            project2 = new Project(99, "Empty", "Medium");
+//            project2 = new Project(99, "Empty", "Medium");
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
         }

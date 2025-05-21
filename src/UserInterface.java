@@ -79,13 +79,13 @@ public class UserInterface {
     // USAGE: optionCreateTask().
     private static Project auxGetProjectByID(int ProjectID) {
         Project certainProject = null;
-        if (project1 != null && project1.getProjectID() == ProjectID) {
-            certainProject = project1;
-        } else if (project2 != null && project2.getProjectID() == ProjectID) {
-            certainProject = project2;
-        } else if (project3 != null && project3.getProjectID() == ProjectID) {
-            certainProject = project3;
-        }
+//        if (project1 != null && project1.getProjectID() == ProjectID) {
+//            certainProject = project1;
+//        } else if (project2 != null && project2.getProjectID() == ProjectID) {
+//            certainProject = project2;
+//        } else if (project3 != null && project3.getProjectID() == ProjectID) {
+//            certainProject = project3;
+//        }
 
         return certainProject;
     }
@@ -155,36 +155,36 @@ public class UserInterface {
         int sumDurations = 0;
 
         // I wish I had arrays right now.
-        String matches = auxFilterTypes(project1, type);
-        double result   = auxCalculateAverageDuration(project1, matches, stopAtProject);
+//        String matches = auxFilterTypes(project1, type);
+//        double result   = auxCalculateAverageDuration(project1, matches, stopAtProject);
         // Cf. comments within auxCalculateAverageDuration to understand why I am doing these eccentric calculations on the return value.
-        if (project1 != null && stopAtProject == project1.getProjectID()) {
-            return (result / SECRET_NUMBER);
-        }
-        if (!matches.isEmpty()) {
-                sumDurations += (int) result;
-                amountMatching += matches.length();
-        }
+//        if (project1 != null && stopAtProject == project1.getProjectID()) {
+//            return (result / SECRET_NUMBER);
+//        }
+//        if (!matches.isEmpty()) {
+//                sumDurations += (int) result;
+//                amountMatching += matches.length();
+//        }
 
-        matches = auxFilterTypes(project2, type);
-        result          = auxCalculateAverageDuration(project2, matches, stopAtProject);
-        if (project2 != null && stopAtProject == project2.getProjectID()) {
-            return (result / SECRET_NUMBER);
-        }
-        if (!matches.isEmpty()) {
-                sumDurations += (int) result;
-                amountMatching += matches.length();
-        }
+//        matches = auxFilterTypes(project2, type);
+//        result          = auxCalculateAverageDuration(project2, matches, stopAtProject);
+//        if (project2 != null && stopAtProject == project2.getProjectID()) {
+//            return (result / SECRET_NUMBER);
+//        }
+//        if (!matches.isEmpty()) {
+//                sumDurations += (int) result;
+//                amountMatching += matches.length();
+//        }
 
-        matches = auxFilterTypes(project3, type);
-        result          = auxCalculateAverageDuration(project3, matches, stopAtProject);
-        if (project3 != null && stopAtProject == project3.getProjectID()) {
-            return (result / SECRET_NUMBER);
-        }
-        if (!matches.isEmpty()) {
-                sumDurations += (int) result;
-                amountMatching += matches.length();
-        }
+//        matches = auxFilterTypes(project3, type);
+//        result          = auxCalculateAverageDuration(project3, matches, stopAtProject);
+//        if (project3 != null && stopAtProject == project3.getProjectID()) {
+//            return (result / SECRET_NUMBER);
+//        }
+//        if (!matches.isEmpty()) {
+//                sumDurations += (int) result;
+//                amountMatching += matches.length();
+//        }
 
         return ((double) sumDurations / (double) amountMatching);
     }
@@ -245,17 +245,17 @@ public class UserInterface {
     // DESC: Displaying All Project Details
     // USAGE: optionDisplay().
     private static void dispViewProjects() {
-        if (project1 != null) {
-            auxViewProject(project1, "123");
-        }
-        System.out.println("--------------------------------------------------------------------------------------------");
-        if (project2 != null) {
-            auxViewProject(project2, "123");
-        }
-        System.out.println("--------------------------------------------------------------------------------------------");
-        if (project3 != null) {
-            auxViewProject(project3, "123");
-        }
+//        if (project1 != null) {
+//            auxViewProject(project1, "123");
+//        }
+//        System.out.println("--------------------------------------------------------------------------------------------");
+//        if (project2 != null) {
+//            auxViewProject(project2, "123");
+//        }
+//        System.out.println("--------------------------------------------------------------------------------------------");
+//        if (project3 != null) {
+//            auxViewProject(project3, "123");
+//        }
     }
 
     // DESC: Displaying Completed Tasks
@@ -291,14 +291,14 @@ public class UserInterface {
             break;
         }
 
-        matchingTasks = auxFilterTypes(project1, filter.toUpperCase().charAt(0));
-        auxViewProject(project1, matchingTasks);
-        System.out.println("--------------------------------------------------------------------------------------------");
-        matchingTasks = auxFilterTypes(project2, filter.toUpperCase().charAt(0));
-        auxViewProject(project2, matchingTasks);
-        System.out.println("--------------------------------------------------------------------------------------------");
-        matchingTasks = auxFilterTypes(project3, filter.toUpperCase().charAt(0));
-        auxViewProject(project3, matchingTasks);
+//        matchingTasks = auxFilterTypes(project1, filter.toUpperCase().charAt(0));
+//        auxViewProject(project1, matchingTasks);
+//        System.out.println("--------------------------------------------------------------------------------------------");
+//        matchingTasks = auxFilterTypes(project2, filter.toUpperCase().charAt(0));
+//        auxViewProject(project2, matchingTasks);
+//        System.out.println("--------------------------------------------------------------------------------------------");
+//        matchingTasks = auxFilterTypes(project3, filter.toUpperCase().charAt(0));
+//        auxViewProject(project3, matchingTasks);
     }
 
     // DESC: Average Task Type Durations
@@ -318,9 +318,9 @@ public class UserInterface {
         }
 
         System.out.println("---Breakdown by Project---");
-        auxPrettyAverageTypeDurationsByProject(project1, 1);
-        auxPrettyAverageTypeDurationsByProject(project2, 2);
-        auxPrettyAverageTypeDurationsByProject(project3, 3);
+//        auxPrettyAverageTypeDurationsByProject(project1, 1);
+//        auxPrettyAverageTypeDurationsByProject(project2, 2);
+//        auxPrettyAverageTypeDurationsByProject(project3, 3);
     }
 
 
@@ -383,7 +383,7 @@ public class UserInterface {
                 System.out.println("Re-attempting creation...");
             };
             finished = true;
-            System.out.println("Created Project #" + ID + " of name " + name + " and type " + ".");
+            System.out.println("Created Project #" + ID + " of name " + name + " and type " + type + ".");
         }
 
         return tempProject;
@@ -402,16 +402,16 @@ public class UserInterface {
             break;
         }
 
-        if (project1 != null && project1.getProjectID() == ID) {
-            project1 = null;
-            return;
-        } else if (project2 != null && project2.getProjectID() == ID) {
-            project2 = null;
-            return;
-        } else if (project3 != null && project3.getProjectID() == ID) {
-            project3 = null;
-            return;
-        }
+//        if (project1 != null && project1.getProjectID() == ID) {
+//            project1 = null;
+//            return;
+//        } else if (project2 != null && project2.getProjectID() == ID) {
+//            project2 = null;
+//            return;
+//        } else if (project3 != null && project3.getProjectID() == ID) {
+//            project3 = null;
+//            return;
+//        }
         System.out.println("ID does not match any known Project ID. Aborting...");
     }
 

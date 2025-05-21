@@ -20,9 +20,9 @@ public class Project {
         this.projectName = "";
         this.projectType = "";
     }
-    public Project(int ID, String name, String type) throws Exception {
+    public Project(int ID, String name, String type, Project[] listProjects) throws Exception {
         // Make sure that the soon-to-be project does not have an ID already in use.
-        setProjectID(ID);
+        setProjectID(ID, listProjects);
         setProjectName(name);
         setProjectType(type);
     }
@@ -49,7 +49,7 @@ public class Project {
         Random random = new Random();
 
         for (Project project: listProjects) {
-            if (project.getProjectID() == ID) {
+            if (project!= null && project.getProjectID() == ID) {
                 this.projectID = random.nextInt(1000);
                 throw new Exception("Project ID already in use. Assigned a randomly generated ID instead.");
             }
