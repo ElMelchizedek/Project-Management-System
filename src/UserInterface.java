@@ -27,49 +27,6 @@ public class UserInterface {
     !!! METHODS !!!
      */
 
-    // *** Debug Methods ***
-    // DESC: Initialises three Projects, each being assigned exclusively one of the three sizes available
-    // And then having Tasks assigned to themselves.
-    // USAGE: main().
-    private static String debugInitialise(String IDsProjects) {
-        System.out.println("*** INITIALISING ***");
-        // Initialise Projects.
-        System.out.println("DEBUG: INITIALISING");
-        project1 = new Project(1, "Borges", "SMALL");
-        IDsProjects = auxAssignProject(1, "SMALL", "1", IDsProjects);
-        project2 = new Project(2, "Spencer", "MEDIUM");
-        IDsProjects = auxAssignProject(2, "MEDIUM", "2", IDsProjects);
-        project3 = new Project(3, "Wolfe", "LARGE");
-        IDsProjects = auxAssignProject(3, "LARGE", "3", IDsProjects);
-
-        // Generate Tasks.
-        project1.createTask(11, "Hegel", "A", 1, false);
-        project2.createTask(21, "Bauer", "A", 2, false);
-        project2.createTask(22, "Feurbach", "L", 3, false);
-        project3.createTask(31, "Marx", "A", 4, false);
-        project3.createTask(32, "Engels", "L", 5, false);
-        project3.createTask(33, "Lenin", "S", 6, false);
-
-        return IDsProjects;
-    }
-
-    // DESC: Attempts to perform a stress test, however too late into development did I realise I exclusively
-    // wrote many of the methods regarding the management of Projects and Tasks to require human input,
-    // and not wanting to refactor the whole codebase I simply accepted this lackluster version of a "test". 
-    // USAGE: main().
-    private static boolean debugTest() {
-        System.out.println("*** STRESS TEST ***");
-        project1 = new Project(0, "Test project", "Large");
-        project1.createTask(1, "Valid ID", "A", 1, false);
-        project1.deleteTask(999);
-        project1.createTask(2, "Test capacity", "A", 1, false);
-        project1.createTask(3, "Test capacity", "A", 1, false);
-        project1.createTask(4, "Test capacity", "A", 1, false);
-        project2 = new Project(99, "Empty", "Medium");
-        auxPrettyAverageTypeDurationsByProject(project2, 99);
-        return true;
-    }
-
     // *** Auxiliary methods. ***
 
     // DESC: Prints an acknowledgement to the user of creation and then returns IDsProjects modified to have the
@@ -235,7 +192,7 @@ public class UserInterface {
 
     // DESC: Displays the average duration of Tasks within a Project, divided by type.
     // USAGE: dispAverageTypeDurations().
-    private static void auxPrettyAverageTypeDurationsByProject(Project project, int num) {
+    public static void auxPrettyAverageTypeDurationsByProject(Project project, int num) {
         if (project != null) {
             System.out.println("Project ID " + project.getProjectID() + ":");
             if (!project.getAllTaskIDs().equals("")) {
@@ -407,7 +364,7 @@ public class UserInterface {
             if (type.equals(SECRET_STRING)) { continue; }
 
             for (int i = 0; i <= permittedTypes.length; i++) {
-                if (tempProject != null && type.toUpperCase().equals(permittedTypes[i])) {
+                if (type.toUpperCase().equals(permittedTypes[i])) {
                     try {
                         tempProject = new Project(ID, name, permittedTypes[i]);
                         break;
@@ -608,7 +565,6 @@ public class UserInterface {
     private static void optionDisplay(Scanner input) {
         String options = """ 
                         Options for Display:
-                        \t *0: Print this dialogue again.
                         \t *1: Exit to Project Management System.
                         \t *2: All Project details.
                         \t *3: Completed Tasks within Project.
@@ -617,16 +573,13 @@ public class UserInterface {
                         """;
 
         System.out.println("*** Display Wizard ***");
-        System.out.print(options);
 
         while (true) {
+            System.out.print(options);
             System.out.print("? ");
             int line = auxCheckInputValid(0, input);
             if (line == -1) { continue; }
             switch (line) {
-                case 0:
-                    System.out.print(options);
-                    break;
                 case 2:
                     dispViewProjects();
                     break;
@@ -660,7 +613,6 @@ public class UserInterface {
         String IDsProjects = "";
         String help = """
                 Options (case-insensitive):
-                \t * H: help
                 \t * Q: quit\s
                 \t* CP: create project
                 \t* D: display info
@@ -673,32 +625,28 @@ public class UserInterface {
         Scanner input = new Scanner(System.in);
 
         // Debug stuff
-        if (init) {
-            IDsProjects = debugInitialise(IDsProjects);
-            amountProjects = 3;
-        }
-        if (test) {
-            if (debugTest()) {
-                System.out.println("! Debug stress test done.");
-            }
-            project1 = null;
-            project2 = null;
-            project3 = null;
-        }
+//        if (init) {
+//            IDsProjects = debugInitialise(IDsProjects);
+//            amountProjects = 3;
+//        }
+//        if (test) {
+//            if (debugTest()) {
+//                System.out.println("! Debug stress test done.");
+//            }
+//            project1 = null;
+//            project2 = null;
+//            project3 = null;
+//        }
 
         System.out.println("Project Management System");
-        System.out.print(help);
 
         while (true) {
+            System.out.print(help);
             System.out.print("> ");
             String line = auxCheckInputValid("", input);
             if (line.equals(SECRET_STRING)) { continue; }
             if (line != null) {
                 switch (line.toUpperCase()) {
-                    // Help.
-                    case "H":
-                        System.out.print(help);
-                        break;
                     // Quit.
                     case "Q":
                         System.exit(0);
