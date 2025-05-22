@@ -516,42 +516,69 @@ public class UserInterface {
     // DESC: Provides an interactive wizard to edit a Task from.
     // NOTE: Really just a "mark Task completed" function.
     // USAGE: main().
-    private static void optionEditTask(Scanner input) {
-        Task certainTask;
-        Project certainProject = auxDialogueGetProject(input);
-        if (certainProject == null) { return; }
+    private static void optionEditTask(Scanner input, Project[] listProjects) {
+        Task certainTask = null;
+        Project certainProject = null;
+        boolean finished = false;
 
-        System.out.print("Enter ID of Task to be edited: ");
-        int TaskID;
-        while (true) {
-            TaskID = auxCheckInputValid(0, input);
-            if (TaskID == -1) { continue; }
+        int ProjectID = -1;
+        int TaskID = -1;
 
-//            certainTask = certainProject.retrieveTaskByID(TaskID);
-//            if (certainTask == null) {
-//                System.out.print("Entered Task ID does not match any existing Task within selected Project. Please try again: ");
-//                continue;
-//            }
-            break;
+        while (!finished) {
+            if (ProjectID == -1) {
+                System.out.print("Please enter ID of Project containing Task to be edited: ");
+                while (true) {
+                    ProjectID = auxCheckInputValid(0, input);
+                    if (ProjectID == -1) {
+                        continue;
+                    }
+                    certainProject = auxGetProjectByID(ProjectID, listProjects);
+                    if (certainProject == null) {
+                        System.out.print("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
+                        continue;
+                    }
+                    break;
+                }
+            }
+
+            if (TaskID == -1) {
+                System.out.print("Enter ID of Task to be edited: ");
+                while (true) {
+                    TaskID = auxCheckInputValid(0, input);
+                    if (TaskID == -1) {
+                        continue;
+                    }
+
+                    try {
+                        certainTask = certainProject.retrieveTaskByID(TaskID);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                        return;
+                    }
+                    break;
+                }
+            }
+
+            System.out.print("Would you like to edit the completed status of the selected Task? (currently: " + certainTask.status() + ") [y/n] ");
+            String choice;
+            while (true) {
+                choice = auxCheckInputValid("", input);
+                if (choice.equals(SECRET_STRING)) {
+                    continue;
+                }
+                choice = choice.toLowerCase();
+
+                if (choice.equals("y")) {
+                    certainTask.setCompleted(!certainTask.getCompleted());
+                    System.out.println("Status of Task #" + certainTask.getTaskID()
+                            + " of Project #" + certainProject.getProjectID()
+                            + " is now " + certainTask.status() + ".");
+                } else {
+                    System.out.println("Exhausted all attributes of Task to edit. Returning...");
+                }
+                return;
+            }
         }
-
-//        System.out.print("Would you like to edit the completed status of the selected Task? (currently: " + certainTask.status() + ") [y/n] ");
-//        String choice;
-//        while(true) {
-//            choice = auxCheckInputValid("", input);
-//            if (choice.equals(SECRET_STRING)) { continue; }
-//            choice = choice.toLowerCase();
-//
-//            if (choice.equals("y")) {
-//                certainTask.setCompleted(!certainTask.getCompleted());
-//                System.out.println("Status of Task #" + certainTask.getTaskID()
-//                        + " of Project #" + certainProject.getProjectID()
-//                        + " is now " + certainTask.status() + ".");
-//            } else {
-//                System.out.println("Exhausted all attributes of Task to edit. Returning...");
-//            }
-//            return;
-//        }
     }
 
     // DESC: Provides an interactive wizard to remove a Task from.
@@ -695,7 +722,7 @@ public class UserInterface {
                         break;
                     // Edit Task.
                     case "ET":
-                        optionEditTask(input);
+                        optionEditTask(input, projects);
                         break;
                     // Remove Task.
                     case "RT":
