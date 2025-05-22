@@ -90,7 +90,7 @@ public class Tests {
 //        return true;
 //    }
 
-    private static void debugAttempt(Project[] listProjects, int ID, String name, String type) {
+    private static void debugAttemptProjectCreate(Project[] listProjects, int ID, String name, String type) {
         try {
             listProjects = UserInterface.auxAddToArray(
                     listProjects,
@@ -102,28 +102,40 @@ public class Tests {
         }
     }
 
-    public static void debugProjectCreate(Project[] listProjects) {
+    private static void debugAttemptTaskCreate(Project project, int ID, String description, String type, int duration, Project[] listProjects) {
+        try {
+            project.createTask(ID, description, type, duration, listProjects);
+            System.out.println("✅");
+        } catch (Exception e) {
+            System.out.println("❌");
+            System.out.println("ERROR: " + e.getMessage());
+        }
+    }
+
+    public static Project[] debugProjectCreate(Project[] listProjects) {
+        System.out.println("*** PROJECT CREATION TEST ***");
+
         // Valid project
         System.out.print("Happy Project ");
-        debugAttempt(listProjects, 1, "Happy", "Small");
+        debugAttemptProjectCreate(listProjects, 1, "Happy", "Small");
         // Duplicate ID
         System.out.print("Duplicate ID ");
-        debugAttempt(listProjects, 1, "Duplicate", "Small");
+        debugAttemptProjectCreate(listProjects, 1, "Duplicate", "Small");
         // Invalid Type
         System.out.print("Invalid Type ");
-        debugAttempt(listProjects, 2, "Invalid", "Huge");
+        debugAttemptProjectCreate(listProjects, 2, "Invalid", "Huge");
         // Empty Name
         System.out.print("Empty Name ");
-        debugAttempt(listProjects, 3, "", "Small");
+        debugAttemptProjectCreate(listProjects, 3, "", "Small");
         // Negative ID
         System.out.print("Negative ID ");
-        debugAttempt(listProjects, -1, "Negative", "Small");
+        debugAttemptProjectCreate(listProjects, -1, "Negative", "Small");
         // Medium type
         System.out.print("Medium Type ");
-        debugAttempt(listProjects, 4, "TypeMedium", "Medium");
+        debugAttemptProjectCreate(listProjects, 4, "TypeMedium", "Medium");
         // Large type
         System.out.print("Large Type ");
-        debugAttempt(listProjects, 5, "TypeLarge", "Large");
+        debugAttemptProjectCreate(listProjects, 5, "TypeLarge", "Large");
         // Boundary check
         System.out.print("Boundary check ");
         try {
@@ -139,8 +151,87 @@ public class Tests {
         }
 
         listProjects = new Project[10];
+        System.out.print("\n\n");
+        return listProjects;
+    }
 
-        System.out.println("***");
+    public static Project[] debugTaskCreate(Project[] listProjects) {
+        System.out.println("*** TASK CREATION TEST ***");
+        // Necessary Projects
+        try {
+            listProjects = UserInterface.auxAddToArray(
+                    listProjects,
+                    Project.createProject(listProjects, 1, "ProjectSmall", "Small")
+            );
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+        try {
+            listProjects = UserInterface.auxAddToArray(
+                    listProjects,
+                    Project.createProject(listProjects, 2, "ProjectMedium", "Medium")
+            );
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+        try {
+            listProjects = UserInterface.auxAddToArray(
+                    listProjects,
+                    Project.createProject(listProjects, 3, "ProjectLarge", "Large")
+            );
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+        try {
+            listProjects = UserInterface.auxAddToArray(
+                    listProjects,
+                    Project.createProject(listProjects, 4, "ProjectPlaceholder", "Large")
+            );
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+
+        Project projectSmall = listProjects[0];
+        Project projectMedium = listProjects[1];
+        Project projectLarge = listProjects[2];
+        Project projectPlaceholder = listProjects[3];
+
+
+        // Valid tasks for each Project type
+        System.out.print("Happy Tasks (Project Type) ");
+        debugAttemptTaskCreate(projectSmall, 0, "TaskSmall", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectMedium, 1, "TaskMedium", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectLarge, 2, "TaskLarge", "A", 1, listProjects);
+        // Valid tasks for each Task type
+        debugAttemptTaskCreate(projectPlaceholder, 11, "TaskL", "L", 1, listProjects);
+        debugAttemptTaskCreate(projectPlaceholder, 12, "TaskS", "S", 1, listProjects);
+        // Non-existent project
+        System.out.print("Non-existent Project ");
+        debugAttemptTaskCreate(null, 3, "NonExistent", "A", 1, listProjects);
+        // Invalid type
+        System.out.print("Invalid Type ");
+        debugAttemptTaskCreate(projectPlaceholder, 4, "Invalid", "X", 1, listProjects);
+        // Duplicate ID
+        System.out.print("Duplicate ID ");
+        debugAttemptTaskCreate(projectLarge, 2, "Duplicate", "A", 1, listProjects);
+        // Empty Description
+        System.out.print("Empty Description ");
+        debugAttemptTaskCreate(projectPlaceholder, 5, "", "A", 1, listProjects);
+        // Negative Duration
+        System.out.print("Negative Duration ");
+        debugAttemptTaskCreate(projectPlaceholder, 6, "Negative", "A", -1, listProjects);
+        // Boundary check for each type
+        System.out.print("Boundary Check ");
+        debugAttemptTaskCreate(projectSmall, 7, "BoundarySmall", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectMedium, 8, "BoundaryMedium1", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectMedium, 9, "BoundaryMedium2", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectLarge, 10, "BoundaryLarge1", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectLarge, 11, "BoundaryLarge2", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectLarge, 12, "BoundaryLarge3", "A", 1, listProjects);
+
+        listProjects = new Project[10];
+        System.out.print("\n\n");
+        return listProjects;
     }
 
 }

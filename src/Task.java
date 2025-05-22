@@ -46,7 +46,8 @@ public class Task {
                 do {
                     this.taskID = random.nextInt(1000);
                 } while (UserInterface.auxCheckIDExistsInProjectList(listProjects, this.taskID));
-                throw new Exception("Duplicate Task ID, randomly generated ID used instead.");
+//                System.out.println("Duplicate Task ID, randomly generated ID used instead.");
+                return;
             }
         }
         this.taskID = ID;

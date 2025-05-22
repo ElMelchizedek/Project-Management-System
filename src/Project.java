@@ -46,7 +46,8 @@ public class Project {
                 do {
                     this.projectID = random.nextInt(1000);
                 } while (UserInterface.auxCheckIDExistsInProjectList(listProjects, this.projectID));
-                throw new Exception("Project ID already in use. Assigned a randomly generated ID instead.");
+//                System.out.println("Project ID already in use. Assigned a randomly generated ID instead.");
+                return;
             }
         }
         this.projectID = ID;

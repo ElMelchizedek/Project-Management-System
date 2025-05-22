@@ -692,9 +692,11 @@ public class UserInterface {
     // *** Main entry method. ***
     public static void main(String[] args) {
         // Debugging toggles.
+        boolean debug = true;
         boolean init = false;
         boolean test = false;
         boolean projectCreate = true;
+        boolean taskCreate = true;
 
         Project[] projects = new Project[10];
 
@@ -713,12 +715,15 @@ public class UserInterface {
 
         // Debug stuff
         if (projectCreate) {
-            Tests.debugProjectCreate(projects);
+            projects = Tests.debugProjectCreate(projects);
+        }
+        if (taskCreate) {
+            projects = Tests.debugTaskCreate(projects);
         }
 
-        System.out.println("Project Management System");
+        System.out.println("———Project Management System———");
 
-        while (true) {
+        while (true && (!debug)) {
             System.out.print(help);
             System.out.print("> ");
             String line = auxCheckInputValid("", input);
