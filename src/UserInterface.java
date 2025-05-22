@@ -244,7 +244,7 @@ public class UserInterface {
         boolean found = false;
 
         for (Project project: listProjects) {
-            if (project.getProjectID() == ID) {
+            if (project != null && project.getProjectID() == ID) {
                 found = true;
                 break;
             }

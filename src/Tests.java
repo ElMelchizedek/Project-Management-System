@@ -127,12 +127,12 @@ public class Tests {
         // Boundary check
         System.out.print("Boundary check ");
         try {
-            for (int i = listProjects.length; i <= 10; i++) {
+            for (int i = 10; (i - 10) <= 11; i++) {
                 listProjects = UserInterface.auxAddToArray(
                         listProjects,
-                        Project.createProject(listProjects, (i - 1), "Boundary", "Small"));
-                System.out.println("✅");
+                        Project.createProject(listProjects, i, "Boundary", "Small"));
             }
+            System.out.println("✅");
         } catch (Exception e) {
             System.out.println("❌");
             System.out.println("ERROR: " + e.getMessage());
