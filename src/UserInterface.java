@@ -694,6 +694,7 @@ public class UserInterface {
         // Debugging toggles.
         boolean init = false;
         boolean test = false;
+        boolean projectCreate = true;
 
         Project[] projects = new Project[10];
 
@@ -711,18 +712,9 @@ public class UserInterface {
         Scanner input = new Scanner(System.in);
 
         // Debug stuff
-//        if (init) {
-//            IDsProjects = debugInitialise(IDsProjects);
-//            amountProjects = 3;
-//        }
-//        if (test) {
-//            if (debugTest()) {
-//                System.out.println("! Debug stress test done.");
-//            }
-//            project1 = null;
-//            project2 = null;
-//            project3 = null;
-//        }
+        if (projectCreate) {
+            Tests.debugProjectCreate(projects);
+        }
 
         System.out.println("Project Management System");
 

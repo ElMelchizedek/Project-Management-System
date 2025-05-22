@@ -90,5 +90,57 @@ public class Tests {
 //        return true;
 //    }
 
+    private static void debugAttempt(Project[] listProjects, int ID, String name, String type) {
+        try {
+            listProjects = UserInterface.auxAddToArray(
+                    listProjects,
+                    Project.createProject(listProjects, ID, name, type));
+            System.out.println("✅");
+        } catch (Exception e) {
+            System.out.println("❌");
+            System.out.println("ERROR: " + e.getMessage());
+        }
+    }
+
+    public static void debugProjectCreate(Project[] listProjects) {
+        // Valid project
+        System.out.print("Happy Project ");
+        debugAttempt(listProjects, 1, "Happy", "Small");
+        // Duplicate ID
+        System.out.print("Duplicate ID ");
+        debugAttempt(listProjects, 1, "Duplicate", "Small");
+        // Invalid Type
+        System.out.print("Invalid Type ");
+        debugAttempt(listProjects, 2, "Invalid", "Huge");
+        // Empty Name
+        System.out.print("Empty Name ");
+        debugAttempt(listProjects, 3, "", "Small");
+        // Negative ID
+        System.out.print("Negative ID ");
+        debugAttempt(listProjects, -1, "Negative", "Small");
+        // Medium type
+        System.out.print("Medium Type ");
+        debugAttempt(listProjects, 4, "TypeMedium", "Medium");
+        // Large type
+        System.out.print("Large Type ");
+        debugAttempt(listProjects, 5, "TypeLarge", "Large");
+        // Boundary check
+        System.out.print("Boundary check ");
+        try {
+            for (int i = listProjects.length; i <= 10; i++) {
+                listProjects = UserInterface.auxAddToArray(
+                        listProjects,
+                        Project.createProject(listProjects, (i - 1), "Boundary", "Small"));
+                System.out.println("✅");
+            }
+        } catch (Exception e) {
+            System.out.println("❌");
+            System.out.println("ERROR: " + e.getMessage());
+        }
+
+        listProjects = new Project[10];
+
+        System.out.println("***");
+    }
 
 }
