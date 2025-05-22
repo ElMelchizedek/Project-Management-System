@@ -24,7 +24,11 @@ public class UserInterface {
 
     // *** Auxiliary methods. ***
 
-    public static Project[] auxAddToArray(Project[] array, Project item) {
+    public static Project[] auxAddToArray(Project[] array, Project item) throws Exception {
+        if (array[array.length - 1] != null) {
+            throw new Exception("Array parameter passed to auxAddToArray() is full.");
+        }
+
         int i = 0;
         for (; i < array.length; i++) {
             if (array[i] == null) {
@@ -231,12 +235,28 @@ public class UserInterface {
             System.out.print("Negative values are not permitted. Please try again: ");
             input.nextLine();
             return -1;
+        } if (value > Integer.MAX_VALUE) {
+            System.out.print("Inputted value was greater than the maximum value allowed for integers. Please try again: ");
+            input.nextLine();
+            return -1;
         }
         // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
         input.nextLine();
         return value;
     }
 
+    public static boolean auxIDExistsInProjectList(Project[] listProjects, int ID) {
+        boolean found = false;
+
+        for (Project project: listProjects) {
+            if (project.getProjectID() == ID) {
+                found = true;
+                break;
+            }
+        }
+
+        return found;
+    }
 
 
     // *** Display Submethods ***
@@ -338,7 +358,7 @@ public class UserInterface {
 
     // DESC: Provides an interactive wizard to create a Project from.
     // USAGE: main()
-    private static Project optionCreateProject(Scanner input, Project[] projects) {
+    private static Project optionCreateProject(Scanner input, Project[] projects) throws Exception {
         // Variables
         Project tempProject = null;
         boolean finished = false;
@@ -346,6 +366,13 @@ public class UserInterface {
         int ID = -1;
         String name = SECRET_STRING;
         String type = SECRET_STRING;
+
+        // Preliminary checks
+        if (projects == null) {
+            throw new Exception("Passed Projects list argument to optionCreateProject() has value null.");
+        } else if (projects[9] != null) {
+            throw new Exception("Passed Projects list argument to optionCreateProject() is full.");
+        }
 
         System.out.println("*** Project Wizard ***");
 
@@ -361,6 +388,7 @@ public class UserInterface {
                     break;
                 }
             }
+
             if (name.equals(SECRET_STRING)) {
                 System.out.print("Enter name for new project: ");
                 while (true) {
@@ -371,6 +399,7 @@ public class UserInterface {
                     break;
                 }
             }
+
             if (type.equals(SECRET_STRING)) {
                 System.out.print("Enter type for new project (options: \"small\", \"medium\", or \"large\"): ");
                 while (true) {
@@ -398,7 +427,12 @@ public class UserInterface {
 
     // DESC: Provides an interactive wizard to remove a Project from.
     // USAGE: main().
-    private static Project[] optionRemoveProject(Scanner input, Project[] listProjects) {
+    private static Project[] optionRemoveProject(Scanner input, Project[] listProjects) throws Exception {
+        // Preliminary checks
+        if (listProjects == null || listProjects[0] == null) {
+            throw new Exception("Projects list parameter passed to optionRemoveProject() is empty.");
+        }
+
         Project[] newList = new Project[10];
 
         System.out.println("*** Project Removal Wizard ***");
@@ -408,6 +442,11 @@ public class UserInterface {
         while (true) {
             ID = auxCheckInputValid(0, input);
             if (ID == -1) { continue; }
+            // Check that Project with said ID in fact exists.
+            if (auxGetProjectByID(ID, listProjects) == null) {
+                System.out.print("ERROR: No know Project has inputted ID. Please try again: ");
+                continue;
+            }
             break;
         }
 
@@ -422,6 +461,8 @@ public class UserInterface {
                 }
             }
         }
+
+        System.out.println("Project #" + ID + " removed successfully.");
 
         return newList;
     }
@@ -453,6 +494,9 @@ public class UserInterface {
                     if (certainProject == null) {
                         System.out.print("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
                         continue;
+                    } else if (certainProject.checkListTasksFull()) {
+                        System.out.println("ERROR: Inputted Project ID corresponds to Project which cannot contain any additional Tasks. Aborting...");
+                        return;
                     }
                     break;
                 }
@@ -502,8 +546,9 @@ public class UserInterface {
                 }
             }
 
+
             try {
-                certainProject.createTask(newID, newDescription, newType, newDuration);
+                certainProject.createTask(newID, newDescription, newType, newDuration, listProjects);
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
             }
@@ -535,6 +580,9 @@ public class UserInterface {
                     certainProject = auxGetProjectByID(ProjectID, listProjects);
                     if (certainProject == null) {
                         System.out.print("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
+                        continue;
+                    } else if (certainProject.amountTasks() == 0) {
+                        System.out.print("ERROR: Inputted Project ID references Project that does not contain any Tasks. Please try again: ");
                         continue;
                     }
                     break;
@@ -698,11 +746,22 @@ public class UserInterface {
                         break;
                     // Create Project.
                     case "CP":
-                        Project newProject = optionCreateProject(input, projects);
+                        Project newProject = null;
+                        try {
+                            newProject = optionCreateProject(input, projects);
+                        } catch (Exception e) {
+                            System.out.println("ERROR: " + e.getMessage());
+                        }
                         if (newProject == null) {
                             System.out.println("ERROR: Unknown error failed Project creation.");
                         } else {
-                            Project[] tempProjects = auxAddToArray(projects, newProject);
+                            Project[] tempProjects = null;
+                            try {
+                                tempProjects = auxAddToArray(projects, newProject);
+                            } catch (Exception e) {
+                                System.out.println("ERROR: " + e.getMessage());
+                                return;
+                            }
                             if (tempProjects == null) {
                                 System.out.println("ERROR: Failed to add new Project to array.");
                             }
@@ -714,7 +773,11 @@ public class UserInterface {
                         break;
                     // Remove Project.
                     case "RP":
-                        projects = optionRemoveProject(input, projects);
+                        try {
+                            projects = optionRemoveProject(input, projects);
+                        } catch (Exception e) {
+                            System.out.println("ERROR: " + e.getMessage());
+                        }
                         break;
                     // Create Task.
                     case "CT":

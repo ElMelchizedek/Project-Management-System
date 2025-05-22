@@ -37,9 +37,15 @@ public class Project {
     public void setProjectID( int ID, Project[] listProjects ) throws Exception {
         Random random = new Random();
 
+        if (ID < 0) {
+            throw new Exception("Inputted ID is a negative which is forbidden.");
+        }
+
         for (Project project: listProjects) {
             if (project!= null && project.getProjectID() == ID) {
-                this.projectID = random.nextInt(1000);
+                do {
+                    this.projectID = random.nextInt(1000);
+                } while (UserInterface.auxIDExistsInProjectList(listProjects, this.projectID));
                 throw new Exception("Project ID already in use. Assigned a randomly generated ID instead.");
             }
         }
@@ -79,10 +85,10 @@ public class Project {
     }
 
     // Methods relating to Tasks.
-    public void createTask(int ID, String description, String type, int duration) throws Exception {
+    public void createTask(int ID, String description, String type, int duration, Project[] listProjects) throws Exception {
         for (int i = 0; i < listTasks.length; i++) {
             if (listTasks[i] == null) {
-                listTasks[i] = Task.createTask(this, ID, description, type, duration);
+                listTasks[i] = Task.createTask(this, ID, description, type, duration, listProjects);
             }
         }
 
@@ -93,10 +99,10 @@ public class Project {
         Task removedTask;
 
         boolean found = false;
-        for (Task task: listTasks) {
-            if (task != null && task.getTaskID() == ID) {
-                removedTask = task;
-                task = null;
+        for (int i = 0; i < listTasks.length; i++) {
+            if (listTasks[i] != null && listTasks[i].getTaskID() == ID) {
+                listTasks[i] = null;
+                found = true;
                 break;
             }
         }

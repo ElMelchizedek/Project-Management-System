@@ -18,8 +18,8 @@ public class Task {
         this.taskType = 'Z';
         this.taskDuration = -1;
     }
-    public Task(int ID, String description, String type, int duration, boolean completed, Project project) throws Exception {
-        setTaskID(ID, project);
+    public Task(int ID, String description, String type, int duration, boolean completed, Project project, Project[] listProjects) throws Exception {
+        setTaskID(ID, project, listProjects);
         setDescription(description);
         setTaskType(type);
         setTaskDuration(duration);
@@ -34,13 +34,19 @@ public class Task {
     public int getTaskDuration() { return this.taskDuration; }
 
     // Setters.
-    public void setTaskID(int ID, Project project) throws Exception {
+    public void setTaskID(int ID, Project project, Project[] listProjects) throws Exception {
         Random random = new Random();
+
+        if (ID < 0) {
+            throw new Exception("Inputted ID is a negative which is forbidden.");
+        }
 
         for (Task task: project.getListTasks()) {
             if (task != null && task.getTaskID() == ID) {
-                this.taskID = random.nextInt(1000);
-                throw new Exception("Duplicate Task ID.");
+                do {
+                    this.taskID = random.nextInt(1000);
+                } while (UserInterface.auxIDExistsInProjectList(listProjects, this.taskID));
+                throw new Exception("Duplicate Task ID, randomly generated ID used instead.");
             }
         }
         this.taskID = ID;
@@ -65,7 +71,13 @@ public class Task {
         }
         this.description = description;
     }
-    public void setTaskDuration(int duration) { this.taskDuration = duration; }
+    public void setTaskDuration(int duration) throws Exception {
+        if (duration < 0) {
+            throw new Exception("Inputted duration is a negative which is forbidden.");
+        }
+
+        this.taskDuration = duration;
+    }
     public void setCompleted(boolean completed) { this.completed = completed; }
 
     // Auxiliary Methods
@@ -76,14 +88,14 @@ public class Task {
         } else { return "Pending"; }
     }
 
-    public static Task createTask(Project project, int newID, String newDesc, String newType, int newDuration) throws Exception {
+    public static Task createTask(Project project, int newID, String newDesc, String newType, int newDuration, Project[] listProjects) throws Exception {
         Task tempTask = new Task();
 
         if (project.checkListTasksFull()) {
             throw new Exception("Project is full and cannot take any new Tasks.");
         }
 
-        tempTask.setTaskID(newID, project);
+        tempTask.setTaskID(newID, project, listProjects);
         tempTask.setTaskType(newType);
         tempTask.setDescription(newDesc);
         tempTask.setTaskDuration(newDuration);
