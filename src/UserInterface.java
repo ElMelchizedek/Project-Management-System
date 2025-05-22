@@ -115,7 +115,7 @@ public class UserInterface {
     // DESC: Returns a String containing numbers indicating which Tasks in a Project have the type specified.
     // E.g., if a Project's task1 and task3 have the specified type, then the String returned will be "13".
     // USAGE: dispFilteredTasks() and auxGetAverageTypeDurations().
-    private static int[] auxFilterTypes(Project project, char type) {
+    private static int[] auxFilterTypes(Project project, char type) throws Exception {
         int[] matchingTasks = null;
 
         int i = 0;
@@ -126,6 +126,10 @@ public class UserInterface {
                     i++;
                 }
             }
+        }
+
+        if (matchingTasks == null) {
+            throw new Exception("Could not find any matching Tasks in auxFilterTypes() for Project #" + project.getProjectID() + ".");
         }
 
         return matchingTasks;
@@ -165,14 +169,18 @@ public class UserInterface {
         // I wish I had arrays right now.
 
         for (int i = 0; i < listProjects.length; i++) {
-            int[] matches = auxFilterTypes(listProjects[i], type);
-            double result = auxCalculateAverageDuration(listProjects[i], matches, stopAtProject);
-            if (listProjects[i] != null && stopAtProject == listProjects[i].getProjectID()) {
-                return (result / SECRET_NUMBER);
-            }
-            if (matches.length != 0) {
-                sumDurations += (int) result;
-                amountMatching += matches.length;
+            try {
+                int[] matches = auxFilterTypes(listProjects[i], type);
+                double result = auxCalculateAverageDuration(listProjects[i], matches, stopAtProject);
+                if (listProjects[i] != null && stopAtProject == listProjects[i].getProjectID()) {
+                    return (result / SECRET_NUMBER);
+                }
+                if (matches.length != 0) {
+                    sumDurations += (int) result;
+                    amountMatching += matches.length;
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getMessage());
             }
         }
 
@@ -304,8 +312,12 @@ public class UserInterface {
 
         for (Project project: listProjects) {
             if (project != null) {
-                matchingTasks = auxFilterTypes(project, filter.toUpperCase().charAt(0));
-                auxViewProject(project, matchingTasks);
+                try {
+                    matchingTasks = auxFilterTypes(project, filter.toUpperCase().charAt(0));
+                    auxViewProject(project, matchingTasks);
+                } catch (Exception e) {
+                    System.out.println("ERROR: " + e.getMessage());
+                }
             }
         }
 
@@ -318,13 +330,13 @@ public class UserInterface {
 
         System.out.println("---Average Task Duration---");
         System.out.println("Average task duration of all task types across all projects:");
-        for (int i = 0; i < types.length; i++) {
-           double duration = auxGetAverageTypeDurations(types[i][0].charAt(0), 0, listProjects);
-           if (duration != Float.NaN) {
-               System.out.println("\t* Average task duration of all " + types[i][1] + " is " + duration + " hours.");
-           } else {
-               System.out.print("\t* There is no " + types[i][1] + " to calculate the average duration of.");
-           }
+        for (String[] type : types) {
+            double duration = auxGetAverageTypeDurations(type[0].charAt(0), 0, listProjects);
+            if (duration != Float.NaN) {
+                System.out.println("\t* Average task duration of all " + type[1] + " is " + duration + " hours.");
+            } else {
+                System.out.print("\t* There is no " + type[1] + " to calculate the average duration of.");
+            }
         }
 
         System.out.println("---Breakdown by Project---");
@@ -395,12 +407,12 @@ public class UserInterface {
             // Actual creation, making sure to check for exceptions.
             try {
                 tempProject = Project.createProject(projects, ID, name, type);
+                finished = true;
+                System.out.println("Created Project #" + ID + " of name " + name + " and type " + type + ".");
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
                 System.out.println("Re-attempting creation...");
-            };
-            finished = true;
-            System.out.println("Created Project #" + ID + " of name " + name + " and type " + type + ".");
+            }
         }
 
         return tempProject;
@@ -530,11 +542,11 @@ public class UserInterface {
 
             try {
                 certainProject.createTask(newID, newDescription, newType, newDuration, listProjects);
+                finished = true;
+                System.out.println("Created Task #" + newID + " of type " + newType + " lasting " + newDuration + "h, assigned to Project #" + newID + ".");
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
             }
-            finished = true;
-            System.out.println("Created Task #" + newID + " of type " + newType + " lasting " + newDuration + "h, assigned to Project #" + newID + ".");
         }
 
     }

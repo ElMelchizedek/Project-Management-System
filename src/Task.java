@@ -45,7 +45,7 @@ public class Task {
             if (task != null && task.getTaskID() == ID) {
                 do {
                     this.taskID = random.nextInt(1000);
-                } while (UserInterface.auxIDExistsInProjectList(listProjects, this.taskID));
+                } while (UserInterface.auxCheckIDExistsInProjectList(listProjects, this.taskID));
                 throw new Exception("Duplicate Task ID, randomly generated ID used instead.");
             }
         }

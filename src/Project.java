@@ -45,7 +45,7 @@ public class Project {
             if (project!= null && project.getProjectID() == ID) {
                 do {
                     this.projectID = random.nextInt(1000);
-                } while (UserInterface.auxIDExistsInProjectList(listProjects, this.projectID));
+                } while (UserInterface.auxCheckIDExistsInProjectList(listProjects, this.projectID));
                 throw new Exception("Project ID already in use. Assigned a randomly generated ID instead.");
             }
         }
@@ -89,6 +89,7 @@ public class Project {
         for (int i = 0; i < listTasks.length; i++) {
             if (listTasks[i] == null) {
                 listTasks[i] = Task.createTask(this, ID, description, type, duration, listProjects);
+                return;
             }
         }
 
