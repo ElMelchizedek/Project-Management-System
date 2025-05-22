@@ -94,52 +94,57 @@ public class UserInterface {
 
     // DESC: Typical prompt request grabbing Project by ID, isolated due to being repeated in multiple methods.
     // USAGE: optionEditTask(), optionRemoveTask(), and dispCompleteTasks().
-    private static Project auxDialogueGetProject(Scanner input) {
-//        Project certainProject;
-//        System.out.print("Enter ID of Project: ");
-//        int ProjectID;
-//        while (true) {
-//            ProjectID = auxCheckInputValid(0, input);
-//            if (ProjectID == -1) { continue; }
+    private static Project auxDialogueGetProject(Scanner input, Project[] listProjects) {
+        Project certainProject;
+        System.out.print("Enter ID of Project: ");
+        int ProjectID;
+        while (true) {
+            ProjectID = auxCheckInputValid(0, input);
+            if (ProjectID == -1) { continue; }
 
-////            certainProject = auxGetProjectByID(ProjectID);
-////            if (certainProject == null) {
-////                System.out.print("ERROR: Entered Project ID does not match any existing Project. Please try again: ");
-////                continue;
-////            }
-//            break;
-//        }
-//        return certainProject;
-        return null;
+            certainProject = auxGetProjectByID(ProjectID, listProjects);
+            if (certainProject == null) {
+                System.out.print("ERROR: Entered Project ID does not match any existing Project. Please try again: ");
+                continue;
+            }
+            break;
+        }
+        return certainProject;
     }
 
     // DESC: Returns a String containing numbers indicating which Tasks in a Project have the type specified.
     // E.g., if a Project's task1 and task3 have the specified type, then the String returned will be "13".
     // USAGE: dispFilteredTasks() and auxGetAverageTypeDurations().
-    private static String auxFilterTypes(Project project, char type) {
-        String matchingTasks = "";
+    private static int[] auxFilterTypes(Project project, char type) {
+        int[] matchingTasks = null;
 
-//        if (project != null) {
-//            for (int i = 1; i <= 3; i++) {
-//                if (project.getTask(i) != null
-//                && project.getTask(i).getTaskType() == type) {
-//                   matchingTasks = matchingTasks.concat(String.valueOf(i));
-//                }
-//            }
-//        }
+        int i = 0;
+        if (project != null) {
+            for (int j = 0; j < project.getListTasks().length; j++) {
+                if (project.getListTasks()[j] != null && project.getListTasks()[j].getTaskType() == type) {
+                    matchingTasks[i] = j;
+                    i++;
+                }
+            }
+        }
 
         return matchingTasks;
     }
 
-    // DESC: Calculates the average duration of Tasks within a Project that match a specified type, as inidicated by the
+    // DESC: Calculates the average duration of Tasks within a Project that match a specified type, as indicated by the
     // matches parameter. 
     // USAGE: auxGetAverageTypeDurations().
-    private static double auxCalculateAverageDuration(Project project, String matches, int stopAtProject) {
+    private static double auxCalculateAverageDuration(Project selectProject, int[] matches, int stopAtProject) {
         int sumDurations = 0;
         int amountMatching = 0;
-//        if (matches.contains("1")) { sumDurations += project.getTask(1).getTaskDuration(); amountMatching++; }
-//        if (matches.contains("2")) { sumDurations += project.getTask(2).getTaskDuration(); amountMatching++; }
-//        if (matches.contains("3")) { sumDurations += project.getTask(3).getTaskDuration(); amountMatching++; }
+        for (int ID: matches) {
+            try {
+                sumDurations += selectProject.retrieveTaskByID(ID).getTaskDuration();
+                amountMatching++;
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getMessage());
+            }
+        }
         // Here I do some funky stuff since I can't just return an array, so I need to be able to distinguish different
         // outcomes whilst not being able to have multiple return types for the method.
         // To differentiate I do this by multiplying the number by a defined power of 10 that is then checked by the
@@ -153,57 +158,39 @@ public class UserInterface {
     // DESC: It allows for both the calculating of average Task durations per a specified Type within a certain Project,
     // (indicated by the stopAtProject parameter) or for all Projects overall.
     // USAGE: dispAverageTaskDurations() and auxPrettyAverageTypeDurationsByProject().
-    private static double auxGetAverageTypeDurations(char type, int stopAtProject) {
+    private static double auxGetAverageTypeDurations(char type, int stopAtProject, Project[] listProjects) {
         int amountMatching = 0;
         int sumDurations = 0;
 
         // I wish I had arrays right now.
-//        String matches = auxFilterTypes(project1, type);
-//        double result   = auxCalculateAverageDuration(project1, matches, stopAtProject);
-        // Cf. comments within auxCalculateAverageDuration to understand why I am doing these eccentric calculations on the return value.
-//        if (project1 != null && stopAtProject == project1.getProjectID()) {
-//            return (result / SECRET_NUMBER);
-//        }
-//        if (!matches.isEmpty()) {
-//                sumDurations += (int) result;
-//                amountMatching += matches.length();
-//        }
 
-//        matches = auxFilterTypes(project2, type);
-//        result          = auxCalculateAverageDuration(project2, matches, stopAtProject);
-//        if (project2 != null && stopAtProject == project2.getProjectID()) {
-//            return (result / SECRET_NUMBER);
-//        }
-//        if (!matches.isEmpty()) {
-//                sumDurations += (int) result;
-//                amountMatching += matches.length();
-//        }
-
-//        matches = auxFilterTypes(project3, type);
-//        result          = auxCalculateAverageDuration(project3, matches, stopAtProject);
-//        if (project3 != null && stopAtProject == project3.getProjectID()) {
-//            return (result / SECRET_NUMBER);
-//        }
-//        if (!matches.isEmpty()) {
-//                sumDurations += (int) result;
-//                amountMatching += matches.length();
-//        }
+        for (int i = 0; i < listProjects.length; i++) {
+            int[] matches = auxFilterTypes(listProjects[i], type);
+            double result = auxCalculateAverageDuration(listProjects[i], matches, stopAtProject);
+            if (listProjects[i] != null && stopAtProject == listProjects[i].getProjectID()) {
+                return (result / SECRET_NUMBER);
+            }
+            if (matches.length != 0) {
+                sumDurations += (int) result;
+                amountMatching += matches.length;
+            }
+        }
 
         return ((double) sumDurations / (double) amountMatching);
     }
 
     // DESC: Displays the average duration of Tasks within a Project, divided by type.
     // USAGE: dispAverageTypeDurations().
-    public static void auxPrettyAverageTypeDurationsByProject(Project project, int num) {
+    public static void auxPrettyAverageTypeDurationsByProject(Project project, int num, Project[] listProjects) {
         if (project != null) {
             System.out.println("Project ID " + project.getProjectID() + ":");
-//            if (!project.getAllTaskIDs().equals("")) {
-//                System.out.println("\t* Average task duration of administrative tasks is " + auxGetAverageTypeDurations('A', num) + ".");
-//                System.out.println("\t* Average task duration of logistics tasks is " + auxGetAverageTypeDurations('L', num) + ".");
-//                System.out.println("\t* Average task duration of support tasks is " + auxGetAverageTypeDurations('S', num) + ".");
-//            } else {
-//                System.out.println("\t* No created tasks to report.");
-//            }
+            if (project.getListTasks().length != 0) {
+                System.out.println("\t* Average task duration of administrative tasks is " + auxGetAverageTypeDurations('A', num, listProjects) + ".");
+                System.out.println("\t* Average task duration of logistics tasks is " + auxGetAverageTypeDurations('L', num, listProjects) + ".");
+                System.out.println("\t* Average task duration of support tasks is " + auxGetAverageTypeDurations('S', num, listProjects) + ".");
+            } else {
+                System.out.println("\t* No created tasks to report.");
+            }
         }
     }
 
@@ -245,7 +232,7 @@ public class UserInterface {
         return value;
     }
 
-    public static boolean auxIDExistsInProjectList(Project[] listProjects, int ID) {
+    public static boolean auxCheckIDExistsInProjectList(Project[] listProjects, int ID) {
         boolean found = false;
 
         for (Project project: listProjects) {
@@ -274,71 +261,65 @@ public class UserInterface {
                 auxViewProject(project, IDs);
             }
         }
-//        if (project1 != null) {
-//            auxViewProject(project1, "123");
-//        }
-//        System.out.println("--------------------------------------------------------------------------------------------");
-//        if (project2 != null) {
-//            auxViewProject(project2, "123");
-//        }
-//        System.out.println("--------------------------------------------------------------------------------------------");
-//        if (project3 != null) {
-//            auxViewProject(project3, "123");
-//        }
     }
 
     // DESC: Displaying Completed Tasks
     // USAGE: optionDisplay().
-    private static void dispCompleteTasks(Scanner input) {
-        Project certainProject = auxDialogueGetProject(input);
-        if (certainProject == null) { return; }
+    private static void dispCompleteTasks(Scanner input, Project[] listProjects) {
+        Project certainProject = auxDialogueGetProject(input, listProjects);
+        if (certainProject == null || certainProject.amountTasks() == 0) { return; }
 
         System.out.println("Completed Tasks in Project #" + certainProject.getProjectID() + ".");
-//        Task task1 = certainProject.getTask(1);
-//        Task task2 = certainProject.getTask(2);
-//        Task task3 = certainProject.getTask(3);
-//        if (task1 != null && task1.getCompleted()) { auxTaskPrettyInfo(task1, false); }
-//        if (task2 != null && task2.getCompleted()) { auxTaskPrettyInfo(task2, false); }
-//        if (task3 != null && task3.getCompleted()) { auxTaskPrettyInfo(task3, false); }
-
+        for (Task task: certainProject.getListTasks()) {
+            if (task != null && task.getCompleted()) {
+                auxTaskPrettyInfo(task, false);
+            }
+        }
     }
 
     // DESC: Filtering Tasks by Type
     // USAGE: optionDisplay().
-    private static void dispFilteredTasks(Scanner input) {
-        String matchingTasks;
+    private static void dispFilteredTasks(Scanner input, Project[] listProjects) {
+        int[] matchingTasks;
 
         System.out.print("Enter the type to filter by ([A]dministrative, [L]ogistical, or [S]upport): ");
         String filter;
         while (true) {
             filter = auxCheckInputValid("", input);
             if (filter.equals(SECRET_STRING)) { continue; }
-//            if (filter.length() != 1 || !Task.permittedTypes.contains(filter.toUpperCase())) {
-//                System.out.print("ERROR: Invalid filter type entered. Please try again: ");
-//                continue;
-//            }
+
+            boolean permissible = false;
+            for (String realType: Task.permittedTypes) {
+                if (filter.toUpperCase().equals(realType)) {
+                    permissible = true;
+                    break;
+                }
+            }
+            if (!permissible) {
+                System.out.print("ERROR: Invalid filter type entered. Please try again: ");
+                continue;
+            }
             break;
         }
 
-//        matchingTasks = auxFilterTypes(project1, filter.toUpperCase().charAt(0));
-//        auxViewProject(project1, matchingTasks);
-//        System.out.println("--------------------------------------------------------------------------------------------");
-//        matchingTasks = auxFilterTypes(project2, filter.toUpperCase().charAt(0));
-//        auxViewProject(project2, matchingTasks);
-//        System.out.println("--------------------------------------------------------------------------------------------");
-//        matchingTasks = auxFilterTypes(project3, filter.toUpperCase().charAt(0));
-//        auxViewProject(project3, matchingTasks);
+        for (Project project: listProjects) {
+            if (project != null) {
+                matchingTasks = auxFilterTypes(project, filter.toUpperCase().charAt(0));
+                auxViewProject(project, matchingTasks);
+            }
+        }
+
     }
 
     // DESC: Average Task Type Durations
     // USAGE: optionDisplay().
-    private static void dispAverageTypeDurations() {
+    private static void dispAverageTypeDurations(Project[] listProjects) {
         String[][] types = {{"A", "administrative"}, {"L", "logistics"}, {"S", "support"}};
 
         System.out.println("---Average Task Duration---");
         System.out.println("Average task duration of all task types across all projects:");
         for (int i = 0; i < types.length; i++) {
-           double duration = auxGetAverageTypeDurations(types[i][0].charAt(0), 0);
+           double duration = auxGetAverageTypeDurations(types[i][0].charAt(0), 0, listProjects);
            if (duration != Float.NaN) {
                System.out.println("\t* Average task duration of all " + types[i][1] + " is " + duration + " hours.");
            } else {
@@ -347,9 +328,9 @@ public class UserInterface {
         }
 
         System.out.println("---Breakdown by Project---");
-//        auxPrettyAverageTypeDurationsByProject(project1, 1);
-//        auxPrettyAverageTypeDurationsByProject(project2, 2);
-//        auxPrettyAverageTypeDurationsByProject(project3, 3);
+        for (int i = 0; i < listProjects.length; i++) {
+            auxPrettyAverageTypeDurationsByProject(listProjects[i], i, listProjects);
+        }
     }
 
 
@@ -631,8 +612,8 @@ public class UserInterface {
 
     // DESC: Provides an interactive wizard to remove a Task from.
     // USAGE: main().
-    private static void optionRemoveTask(Scanner input) {
-        Project certainProject = auxDialogueGetProject(input);
+    private static void optionRemoveTask(Scanner input, Project[] listProjects) {
+        Project certainProject = auxDialogueGetProject(input, listProjects);
         if (certainProject == null) { return; }
 
         System.out.print("Please enter ID of Task to be removed: ");
@@ -677,13 +658,13 @@ public class UserInterface {
                     dispViewProjects(listProjects);
                     break;
                 case 3:
-                    dispCompleteTasks(input);
+                    dispCompleteTasks(input, listProjects);
                     break;
                 case 4:
-                    dispFilteredTasks(input);
+                    dispFilteredTasks(input, listProjects);
                     break;
                 case 5:
-                    dispAverageTypeDurations();
+                    dispAverageTypeDurations(listProjects);
                     break;
                 case 1:
                     return;
@@ -755,7 +736,7 @@ public class UserInterface {
                         if (newProject == null) {
                             System.out.println("ERROR: Unknown error failed Project creation.");
                         } else {
-                            Project[] tempProjects = null;
+                            Project[] tempProjects;
                             try {
                                 tempProjects = auxAddToArray(projects, newProject);
                             } catch (Exception e) {
@@ -789,7 +770,7 @@ public class UserInterface {
                         break;
                     // Remove Task.
                     case "RT":
-                        optionRemoveTask(input);
+                        optionRemoveTask(input, projects);
                         break;
                     default:
                         System.out.println("Unknown option.");
