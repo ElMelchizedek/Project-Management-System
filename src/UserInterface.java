@@ -258,7 +258,7 @@ public class UserInterface {
 
     // DESC: Displaying All Project Details
     // USAGE: optionDisplay().
-    private static void dispViewProjects(Project[] listProjects) {
+    public static void dispViewProjects(Project[] listProjects) {
         for (Project project : listProjects) {
             if (project != null) {
                 int length = project.amountTasks();
@@ -697,6 +697,7 @@ public class UserInterface {
         boolean test = false;
         boolean projectCreate = true;
         boolean taskCreate = true;
+        boolean viewProjects = true;
 
         Project[] projects = new Project[10];
 
@@ -719,6 +720,9 @@ public class UserInterface {
         }
         if (taskCreate) {
             projects = Tests.debugTaskCreate(projects);
+        }
+        if (viewProjects) {
+            projects = Tests.debugViewProjects(projects);
         }
 
         System.out.println("———Project Management System———");
