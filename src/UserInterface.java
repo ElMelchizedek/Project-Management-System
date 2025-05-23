@@ -262,6 +262,22 @@ public class UserInterface {
         }
     }
 
+    public static void auxViewFilteredTasks(String filter, Project[] listProjects) {
+        int [] matchingTasks;
+
+        for (Project project: listProjects) {
+            if (project != null) {
+                try {
+                    matchingTasks = auxFilterTypes(project, filter.toUpperCase().charAt(0));
+                    auxViewProject(project, matchingTasks);
+                } catch (Exception e) {
+                    System.out.println("ERROR: " + e.getMessage());
+                }
+            }
+        }
+
+    }
+
     // *** Display Submethods ***
 
     // DESC: Displaying All Project Details
@@ -291,7 +307,6 @@ public class UserInterface {
     // DESC: Filtering Tasks by Type
     // USAGE: optionDisplay().
     private static void dispFilteredTasks(Scanner input, Project[] listProjects) {
-        int[] matchingTasks;
 
         System.out.print("Enter the type to filter by ([A]dministrative, [L]ogistical, or [S]upport): ");
         String filter;
@@ -313,17 +328,7 @@ public class UserInterface {
             break;
         }
 
-        for (Project project: listProjects) {
-            if (project != null) {
-                try {
-                    matchingTasks = auxFilterTypes(project, filter.toUpperCase().charAt(0));
-                    auxViewProject(project, matchingTasks);
-                } catch (Exception e) {
-                    System.out.println("ERROR: " + e.getMessage());
-                }
-            }
-        }
-
+        auxViewFilteredTasks(filter, listProjects);
     }
 
     // DESC: Average Task Type Durations

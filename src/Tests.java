@@ -2,22 +2,26 @@ import javax.sound.midi.SysexMessage;
 
 public class Tests {
 
-    private static void debugAttemptProjectCreate(Project[] listProjects, int ID, String name, String type) {
+    private static void debugAttemptProjectCreate(Project[] listProjects, int ID, String name, String type, boolean print) {
         try {
             listProjects = UserInterface.auxAddToArray(
                     listProjects,
                     Project.createProject(listProjects, ID, name, type));
-            System.out.println("✅");
+            if (print) {
+                System.out.println("✅");
+            }
         } catch (Exception e) {
             System.out.println("❌");
             System.out.println("ERROR: " + e.getMessage());
         }
     }
 
-    private static void debugAttemptTaskCreate(Project project, int ID, String description, String type, int duration, Project[] listProjects) {
+    private static void debugAttemptTaskCreate(Project project, int ID, String description, String type, int duration, Project[] listProjects, boolean print) {
         try {
             project.createTask(ID, description, type, duration, listProjects);
-            System.out.println("✅");
+            if (print) {
+                System.out.println("✅");
+            }
         } catch (Exception e) {
             System.out.println("❌");
             System.out.println("ERROR: " + e.getMessage());
@@ -29,34 +33,32 @@ public class Tests {
 
         // Valid project
         System.out.print("Happy Project ");
-        debugAttemptProjectCreate(listProjects, 1, "Happy", "Small");
+        debugAttemptProjectCreate(listProjects, 1, "Happy", "Small", true);
         // Duplicate ID
         System.out.print("Duplicate ID ");
-        debugAttemptProjectCreate(listProjects, 1, "Duplicate", "Small");
+        debugAttemptProjectCreate(listProjects, 1, "Duplicate", "Small", true);
         // Invalid Type
         System.out.print("Invalid Type ");
-        debugAttemptProjectCreate(listProjects, 2, "Invalid", "Huge");
+        debugAttemptProjectCreate(listProjects, 2, "Invalid", "Huge", true);
         // Empty Name
         System.out.print("Empty Name ");
-        debugAttemptProjectCreate(listProjects, 3, "", "Small");
+        debugAttemptProjectCreate(listProjects, 3, "", "Small", true);
         // Negative ID
         System.out.print("Negative ID ");
-        debugAttemptProjectCreate(listProjects, -1, "Negative", "Small");
+        debugAttemptProjectCreate(listProjects, -1, "Negative", "Small", true);
         // Medium type
         System.out.print("Medium Type ");
-        debugAttemptProjectCreate(listProjects, 4, "TypeMedium", "Medium");
+        debugAttemptProjectCreate(listProjects, 4, "TypeMedium", "Medium", true);
         // Large type
         System.out.print("Large Type ");
-        debugAttemptProjectCreate(listProjects, 5, "TypeLarge", "Large");
+        debugAttemptProjectCreate(listProjects, 5, "TypeLarge", "Large", true);
         // Boundary check
         System.out.print("Boundary check ");
         try {
             for (int i = 10; (i - 10) <= 11; i++) {
-                listProjects = UserInterface.auxAddToArray(
-                        listProjects,
-                        Project.createProject(listProjects, i, "Boundary", "Small"));
+                debugAttemptProjectCreate(listProjects, i, "Boundary", "Small", true);
+                System.out.println("✅");
             }
-            System.out.println("✅");
         } catch (Exception e) {
             System.out.println("❌");
             System.out.println("ERROR: " + e.getMessage());
@@ -70,38 +72,10 @@ public class Tests {
     public static Project[] debugTaskCreate(Project[] listProjects) {
         System.out.println("*** TASK CREATION TEST ***");
         // Necessary Projects
-        try {
-            listProjects = UserInterface.auxAddToArray(
-                    listProjects,
-                    Project.createProject(listProjects, 1, "ProjectSmall", "Small")
-            );
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
-        try {
-            listProjects = UserInterface.auxAddToArray(
-                    listProjects,
-                    Project.createProject(listProjects, 2, "ProjectMedium", "Medium")
-            );
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
-        try {
-            listProjects = UserInterface.auxAddToArray(
-                    listProjects,
-                    Project.createProject(listProjects, 3, "ProjectLarge", "Large")
-            );
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
-        try {
-            listProjects = UserInterface.auxAddToArray(
-                    listProjects,
-                    Project.createProject(listProjects, 4, "ProjectPlaceholder", "Large")
-            );
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
+        debugAttemptProjectCreate(listProjects, 1, "ProjectSmall", "Small", false);
+        debugAttemptProjectCreate(listProjects, 2, "ProjectMedium", "Medium", false);
+        debugAttemptProjectCreate(listProjects, 3, "ProjectLarge", "Large", false);
+        debugAttemptProjectCreate(listProjects, 4, "ProjectPlaceholder", "Large", false);
 
         Project projectSmall = listProjects[0];
         Project projectMedium = listProjects[1];
@@ -111,35 +85,35 @@ public class Tests {
 
         // Valid tasks for each Project type
         System.out.print("Happy Tasks (Project Type) ");
-        debugAttemptTaskCreate(projectSmall, 0, "TaskSmall", "A", 1, listProjects);
-        debugAttemptTaskCreate(projectMedium, 1, "TaskMedium", "A", 1, listProjects);
-        debugAttemptTaskCreate(projectLarge, 2, "TaskLarge", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectSmall, 0, "TaskSmall", "A", 1, listProjects, true);
+        debugAttemptTaskCreate(projectMedium, 1, "TaskMedium", "A", 1, listProjects, true);
+        debugAttemptTaskCreate(projectLarge, 2, "TaskLarge", "A", 1, listProjects, true);
         // Valid tasks for each Task type
-        debugAttemptTaskCreate(projectPlaceholder, 11, "TaskL", "L", 1, listProjects);
-        debugAttemptTaskCreate(projectPlaceholder, 12, "TaskS", "S", 1, listProjects);
+        debugAttemptTaskCreate(projectPlaceholder, 11, "TaskL", "L", 1, listProjects, true);
+        debugAttemptTaskCreate(projectPlaceholder, 12, "TaskS", "S", 1, listProjects, true);
         // Non-existent project
         System.out.print("Non-existent Project ");
-        debugAttemptTaskCreate(null, 3, "NonExistent", "A", 1, listProjects);
+        debugAttemptTaskCreate(null, 3, "NonExistent", "A", 1, listProjects, true);
         // Invalid type
         System.out.print("Invalid Type ");
-        debugAttemptTaskCreate(projectPlaceholder, 4, "Invalid", "X", 1, listProjects);
+        debugAttemptTaskCreate(projectPlaceholder, 4, "Invalid", "X", 1, listProjects, true);
         // Duplicate ID
         System.out.print("Duplicate ID ");
-        debugAttemptTaskCreate(projectLarge, 2, "Duplicate", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectLarge, 2, "Duplicate", "A", 1, listProjects, true);
         // Empty Description
         System.out.print("Empty Description ");
-        debugAttemptTaskCreate(projectPlaceholder, 5, "", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectPlaceholder, 5, "", "A", 1, listProjects, true);
         // Negative Duration
         System.out.print("Negative Duration ");
-        debugAttemptTaskCreate(projectPlaceholder, 6, "Negative", "A", -1, listProjects);
+        debugAttemptTaskCreate(projectPlaceholder, 6, "Negative", "A", -1, listProjects, true);
         // Boundary check for each type
         System.out.print("Boundary Check ");
-        debugAttemptTaskCreate(projectSmall, 7, "BoundarySmall", "A", 1, listProjects);
-        debugAttemptTaskCreate(projectMedium, 8, "BoundaryMedium1", "A", 1, listProjects);
-        debugAttemptTaskCreate(projectMedium, 9, "BoundaryMedium2", "A", 1, listProjects);
-        debugAttemptTaskCreate(projectLarge, 10, "BoundaryLarge1", "A", 1, listProjects);
-        debugAttemptTaskCreate(projectLarge, 11, "BoundaryLarge2", "A", 1, listProjects);
-        debugAttemptTaskCreate(projectLarge, 12, "BoundaryLarge3", "A", 1, listProjects);
+        debugAttemptTaskCreate(projectSmall, 7, "BoundarySmall", "A", 1, listProjects, true);
+        debugAttemptTaskCreate(projectMedium, 8, "BoundaryMedium1", "A", 1, listProjects, true);
+        debugAttemptTaskCreate(projectMedium, 9, "BoundaryMedium2", "A", 1, listProjects, true);
+        debugAttemptTaskCreate(projectLarge, 10, "BoundaryLarge1", "A", 1, listProjects, true);
+        debugAttemptTaskCreate(projectLarge, 11, "BoundaryLarge2", "A", 1, listProjects, true);
+        debugAttemptTaskCreate(projectLarge, 12, "BoundaryLarge3", "A", 1, listProjects, true);
 
         listProjects = new Project[10];
         System.out.print("\n\n");
@@ -153,21 +127,11 @@ public class Tests {
         UserInterface.dispViewProjects(listProjects);
         // Project but no tasks
         System.out.println("+ Project (Empty)");
-        try {
-            listProjects = UserInterface.auxAddToArray(
-                    listProjects,
-                    Project.createProject(listProjects, 1, "NoTasks", "Small"));
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
+        debugAttemptProjectCreate(listProjects, 1, "NoTasks", "Small", false);
         UserInterface.dispViewProjects(listProjects);
         // Project full of tasks
         System.out.println("+ Project (Full)");
-        try {
-            listProjects[0].createTask(1, "Full", "A", 1, listProjects);
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
+        debugAttemptTaskCreate(listProjects[0], 1, "Full", "A", 1, listProjects, false);
         UserInterface.dispViewProjects(listProjects);
 
         listProjects = new Project[10];
@@ -179,31 +143,47 @@ public class Tests {
         System.out.println("*** VIEW COMPLETE TASKS TEST ***");
         // No tasks
         System.out.println("+ No Tasks");
-        try {
-            listProjects = UserInterface.auxAddToArray(
-                    listProjects,
-                    Project.createProject(listProjects, 1, "NoTasks", "Medium"));
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
+        debugAttemptProjectCreate(listProjects, 1, "NoTasks", "Medium", false);
         UserInterface.auxViewCompleteTasks(listProjects[0]);
         // Only pending tasks
         System.out.println("+ Only Pending Tasks");
-        try {
-            listProjects[0].createTask(1, "Pending", "A", 1, listProjects);
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
+        debugAttemptTaskCreate(listProjects[0], 1, "Pending", "A", 1, listProjects, false);
         UserInterface.auxViewCompleteTasks(listProjects[0]);
         // Mixed pending-complete
         System.out.println("+ Mixed Task Completeness");
-        try {
-            listProjects[0].createTask(2, "Complete", "A", 1, listProjects);
-        } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
-        }
+        debugAttemptTaskCreate(listProjects[0], 2, "Complete", "A", 1, listProjects, false);
         listProjects[0].getListTasks()[1].setCompleted(true);
         UserInterface.auxViewCompleteTasks(listProjects[0]);
+
+        listProjects = new Project[10];
+        System.out.print("\n\n");
+        return listProjects;
+    }
+
+    public static Project[] debugViewFilteredTasks(Project[] listProjects) {
+        System.out.println("*** VIEW FILTERED TASKS TEST ***");
+        // Preliminary creation
+        // Create project
+        debugAttemptProjectCreate(listProjects, 0, "Container", "Large", false);
+        // Create tasks
+        debugAttemptTaskCreate(listProjects[0], 1, "Admin", "A", 1, listProjects, false);
+        debugAttemptTaskCreate(listProjects[0], 2, "Logi", "L", 1, listProjects, false);
+        debugAttemptTaskCreate(listProjects[0], 3, "Support", "S", 1, listProjects, false);
+
+        // +++ ACTUAL TESTS
+        // Each Filter
+        System.out.println("+ Filters");
+        UserInterface.auxViewFilteredTasks("A", listProjects);
+        UserInterface.auxViewFilteredTasks("L", listProjects);
+        UserInterface.auxViewFilteredTasks("S", listProjects);
+        // No Matching Type
+        System.out.println("+ No Matching Type");
+        try {
+            listProjects[0].deleteTask(3);
+        } catch (Exception e) {
+           System.out.println("ERROR: " + e.getMessage());
+        }
+        UserInterface.auxViewFilteredTasks("S", listProjects);
 
         listProjects = new Project[10];
         System.out.print("\n\n");
