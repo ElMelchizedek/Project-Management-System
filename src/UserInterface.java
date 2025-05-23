@@ -171,7 +171,7 @@ public class UserInterface {
         try {
             matchingTasks = auxGetAllTasksMatchingType(project, type);
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+//            System.out.println("ERROR: " + e.getMessage());
             return -1;
         }
 
@@ -185,32 +185,39 @@ public class UserInterface {
         // Calculate the amount of Projects in the Project list.
         int amountProjects = 0;
         for (int i = 0; i < listProjects.length; i++) {
-            if (listProjects[i] == null && i != 0) {
-                amountProjects = i;
-                break;
-            } else if (i == 0) {
-                throw new Exception("No Projects to calculate from.");
+            if (listProjects[i] != null) {
+                amountProjects++;
             }
+        }
+        if (amountProjects == 0) {
+            throw new Exception("No Projects to calculate from.");
         }
 
         // Generate array of average Task durations for each Project.
         double[] averagesArray = new double[amountProjects];
         int metaIncrement = 0;
         for (Project project: listProjects) {
-            averagesArray[metaIncrement] = auxSpecificGetAverageTypeDurations(project, type);
-            metaIncrement++;
+            if (project != null) {
+                double dummy = auxSpecificGetAverageTypeDurations(project, type);
+                if (dummy != -1) {
+                    averagesArray[metaIncrement] = dummy;
+                    metaIncrement++;
+                }
+            }
         }
         if (metaIncrement == 0) {
-            throw new Exception("metaIncrement resulted in 0 in auxOverallGetAverageTypeDurations() for type " + type + ".");
+//            throw new Exception("metaIncrement resulted in 0 in auxOverallGetAverageTypeDurations() for type " + type + ".");
+            return Float.NaN;
         }
 
         // Calculate Absolute Overall duration for all Tasks for specified type across all Projects.
         double sumOfAverages = 0.0;
-        for (int i = 0; i < (metaIncrement + 1); i++) {
+        for (int i = 0; i < metaIncrement; i++) {
             sumOfAverages += averagesArray[i];
         }
         if (sumOfAverages == 0) {
-            throw new Exception("sumOfAverages resulted in 0 in auxOverallGetAverageTypeDurations() for type " + type + ".");
+//            throw new Exception("sumOfAverages resulted in 0 in auxOverallGetAverageTypeDurations() for type " + type + ".");
+            return Float.NaN;
         }
 
         return (sumOfAverages / (double) metaIncrement);
@@ -227,7 +234,12 @@ public class UserInterface {
             if (project.getListTasks().length != 0) {
                 for (String[] combo : typesCombo) {
                     try {
-                        System.out.println("\t* Average task duration of " + combo[1] + " is " + auxSpecificGetAverageTypeDurations(project, combo[0]) + ".");
+                        double average = auxSpecificGetAverageTypeDurations(project, combo[0]);
+                        if (average != -1.0) {
+                            System.out.println("\t* Average task duration of the " + combo[1] + " Tasks is " + auxSpecificGetAverageTypeDurations(project, combo[0]) + ".");
+                        } else {
+                            System.out.println("\t* There are no " + combo[1] + " Tasks in the Project.");
+                        }
                     } catch (Exception e) {
                         System.out.print("ERROR: " + e.getMessage());
                     }
@@ -381,10 +393,10 @@ public class UserInterface {
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
             }
-            if (duration != Float.NaN) {
+            if (!Double.isNaN(duration)) {
                 System.out.println("\t* Average task duration of all " + type[1] + " is " + duration + " hours.");
             } else {
-                System.out.print("\t* There is no " + type[1] + " to calculate the average duration of.");
+                System.out.println("\t* There is no " + type[1] + " Tasks.");
             }
         }
 
@@ -741,13 +753,13 @@ public class UserInterface {
     // *** Main entry method. ***
     public static void main(String[] args) {
         // Debugging toggles.
-        boolean debug = false;
+        boolean debug = true;
         boolean projectCreate = false;
         boolean taskCreate = false;
         boolean viewProjects = false;
         boolean viewCompleteTasks = false;
         boolean viewFilteredTasks = false;
-        boolean viewAverageTypeDurations = false;
+        boolean viewAverageTypeDurations = true;
 
         Project[] projects = new Project[10];
 

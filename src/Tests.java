@@ -2,7 +2,7 @@ import javax.sound.midi.SysexMessage;
 
 public class Tests {
 
-    private static void debugAttemptProjectCreate(Project[] listProjects, int ID, String name, String type, boolean print) {
+    private static Project[] debugAttemptProjectCreate(Project[] listProjects, int ID, String name, String type, boolean print) {
         try {
             listProjects = UserInterface.auxAddToArray(
                     listProjects,
@@ -14,6 +14,8 @@ public class Tests {
             System.out.println("❌");
             System.out.println("ERROR: " + e.getMessage());
         }
+
+        return listProjects;
     }
 
     private static void debugAttemptTaskCreate(Project project, int ID, String description, String type, int duration, Project[] listProjects, boolean print) {
@@ -199,26 +201,29 @@ public class Tests {
         System.out.println("+ Project (Empty)");
         debugAttemptProjectCreate(listProjects, 3, "ContainerEmpty", "Small", false);
         UserInterface.dispAverageTypeDurations(listProjects);
+        System.out.print("\n\n");
 
         // Tasks of only one type
+        listProjects = new Project[10];
         System.out.println("+ All Projects Same Type");
         debugAttemptProjectCreate(listProjects, 0, "Container1", "Small", false);
         debugAttemptProjectCreate(listProjects, 1, "Container2", "Small", false);
         debugAttemptProjectCreate(listProjects, 2, "Container3", "Small", false);
-        debugAttemptTaskCreate(listProjects[1], 4, "Task1", "A", 1, listProjects, false);
-        debugAttemptTaskCreate(listProjects[2], 5, "Task2", "A", 1, listProjects, false);
-        debugAttemptTaskCreate(listProjects[3], 6, "Task3", "A", 1, listProjects, false);
+        debugAttemptTaskCreate(listProjects[0], 4, "Task1", "A", 1, listProjects, false);
+        debugAttemptTaskCreate(listProjects[1], 5, "Task2", "A", 1, listProjects, false);
+        debugAttemptTaskCreate(listProjects[2], 6, "Task3", "A", 1, listProjects, false);
         UserInterface.dispAverageTypeDurations(listProjects);
+        System.out.print("\n\n");
 
         // Mixed Tasks
         System.out.println("+ Mixed Tasks");
         try {
-            listProjects[2].getListTasks()[0].setTaskType("L");
+            listProjects[1].getListTasks()[0].setTaskType("L");
         } catch (Exception e) {
 //            System.out.println("ERROR: " + e.getMessage());
         }
         try {
-            listProjects[3].getListTasks()[0].setTaskType("S");
+            listProjects[2].getListTasks()[0].setTaskType("S");
         } catch (Exception e) {
 //            System.out.println("ERROR: " + e.getMessage());
         }
