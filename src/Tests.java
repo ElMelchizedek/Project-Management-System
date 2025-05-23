@@ -169,6 +169,44 @@ public class Tests {
             System.out.println("ERROR: " + e.getMessage());
         }
         UserInterface.dispViewProjects(listProjects);
+
+        listProjects = new Project[10];
+        System.out.print("\n\n");
+        return listProjects;
+    }
+
+    public static Project[] debugViewCompleteTasks(Project[] listProjects) {
+        System.out.println("*** VIEW COMPLETE TASKS TEST ***");
+        // No tasks
+        System.out.println("+ No Tasks");
+        try {
+            listProjects = UserInterface.auxAddToArray(
+                    listProjects,
+                    Project.createProject(listProjects, 1, "NoTasks", "Medium"));
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+        UserInterface.auxViewCompleteTasks(listProjects[0]);
+        // Only pending tasks
+        System.out.println("+ Only Pending Tasks");
+        try {
+            listProjects[0].createTask(1, "Pending", "A", 1, listProjects);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+        UserInterface.auxViewCompleteTasks(listProjects[0]);
+        // Mixed pending-complete
+        System.out.println("+ Mixed Task Completeness");
+        try {
+            listProjects[0].createTask(2, "Complete", "A", 1, listProjects);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
+        listProjects[0].getListTasks()[1].setCompleted(true);
+        UserInterface.auxViewCompleteTasks(listProjects[0]);
+
+        listProjects = new Project[10];
+        System.out.print("\n\n");
         return listProjects;
     }
 }

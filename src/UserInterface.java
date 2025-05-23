@@ -253,6 +253,14 @@ public class UserInterface {
         return found;
     }
 
+    public static void auxViewCompleteTasks(Project certainProject) {
+        System.out.println("Completed Tasks in Project #" + certainProject.getProjectID() + ".");
+        for (Task task: certainProject.getListTasks()) {
+            if (task != null && task.getCompleted()) {
+                auxTaskPrettyInfo(task, false);
+            }
+        }
+    }
 
     // *** Display Submethods ***
 
@@ -273,16 +281,11 @@ public class UserInterface {
 
     // DESC: Displaying Completed Tasks
     // USAGE: optionDisplay().
-    private static void dispCompleteTasks(Scanner input, Project[] listProjects) {
+    public static void dispCompleteTasks(Scanner input, Project[] listProjects) {
         Project certainProject = auxDialogueGetProject(input, listProjects);
         if (certainProject == null || certainProject.amountTasks() == 0) { return; }
 
-        System.out.println("Completed Tasks in Project #" + certainProject.getProjectID() + ".");
-        for (Task task: certainProject.getListTasks()) {
-            if (task != null && task.getCompleted()) {
-                auxTaskPrettyInfo(task, false);
-            }
-        }
+        auxViewCompleteTasks(certainProject);
     }
 
     // DESC: Filtering Tasks by Type
@@ -698,6 +701,7 @@ public class UserInterface {
         boolean projectCreate = true;
         boolean taskCreate = true;
         boolean viewProjects = true;
+        boolean viewCompleteTasks = true;
 
         Project[] projects = new Project[10];
 
@@ -723,6 +727,9 @@ public class UserInterface {
         }
         if (viewProjects) {
             projects = Tests.debugViewProjects(projects);
+        }
+        if (viewCompleteTasks) {
+            projects = Tests.debugViewCompleteTasks(projects);
         }
 
         System.out.println("———Project Management System———");
