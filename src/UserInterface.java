@@ -297,7 +297,7 @@ public class UserInterface {
 
     // DESC: Displaying Completed Tasks
     // USAGE: optionDisplay().
-    public static void dispCompleteTasks(Scanner input, Project[] listProjects) {
+    private static void dispCompleteTasks(Scanner input, Project[] listProjects) {
         Project certainProject = auxDialogueGetProject(input, listProjects);
         if (certainProject == null || certainProject.amountTasks() == 0) { return; }
 
@@ -333,7 +333,7 @@ public class UserInterface {
 
     // DESC: Average Task Type Durations
     // USAGE: optionDisplay().
-    private static void dispAverageTypeDurations(Project[] listProjects) {
+    public static void dispAverageTypeDurations(Project[] listProjects) {
         String[][] types = {{"A", "administrative"}, {"L", "logistics"}, {"S", "support"}};
 
         System.out.println("---Average Task Duration---");
@@ -701,12 +701,12 @@ public class UserInterface {
     public static void main(String[] args) {
         // Debugging toggles.
         boolean debug = true;
-        boolean init = false;
-        boolean test = false;
         boolean projectCreate = true;
         boolean taskCreate = true;
         boolean viewProjects = true;
         boolean viewCompleteTasks = true;
+        boolean viewFilteredTasks = true;
+        boolean viewAverageTypeDurations = true;
 
         Project[] projects = new Project[10];
 
@@ -735,6 +735,12 @@ public class UserInterface {
         }
         if (viewCompleteTasks) {
             projects = Tests.debugViewCompleteTasks(projects);
+        }
+        if (viewFilteredTasks) {
+            projects = Tests.debugViewFilteredTasks(projects);
+        }
+        if (viewAverageTypeDurations) {
+            projects = Tests.debugViewAverageTypeDurations(projects);
         }
 
         System.out.println("———Project Management System———");
