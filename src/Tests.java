@@ -198,7 +198,6 @@ public class Tests {
         // Project with no tasks
         System.out.println("+ Project (Empty)");
         debugAttemptProjectCreate(listProjects, 3, "ContainerEmpty", "Small", false);
-        Project projectEmpty = listProjects[3];
         UserInterface.dispAverageTypeDurations(listProjects);
 
         // Tasks of only one type
@@ -206,25 +205,22 @@ public class Tests {
         debugAttemptProjectCreate(listProjects, 0, "Container1", "Small", false);
         debugAttemptProjectCreate(listProjects, 1, "Container2", "Small", false);
         debugAttemptProjectCreate(listProjects, 2, "Container3", "Small", false);
-        Project project1 = listProjects[0];
-        Project project2 = listProjects[1];
-        Project project3 = listProjects[2];
-        debugAttemptTaskCreate(project1, 4, "Task1", "A", 1, listProjects, false);
-        debugAttemptTaskCreate(project2, 5, "Task2", "A", 1, listProjects, false);
-        debugAttemptTaskCreate(project3, 6, "Task3", "A", 1, listProjects, false);
+        debugAttemptTaskCreate(listProjects[1], 4, "Task1", "A", 1, listProjects, false);
+        debugAttemptTaskCreate(listProjects[2], 5, "Task2", "A", 1, listProjects, false);
+        debugAttemptTaskCreate(listProjects[3], 6, "Task3", "A", 1, listProjects, false);
         UserInterface.dispAverageTypeDurations(listProjects);
 
         // Mixed Tasks
         System.out.println("+ Mixed Tasks");
         try {
-            project2.getListTasks()[0].setTaskType("L");
+            listProjects[2].getListTasks()[0].setTaskType("L");
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+//            System.out.println("ERROR: " + e.getMessage());
         }
         try {
-            project3.getListTasks()[0].setTaskType("S");
+            listProjects[3].getListTasks()[0].setTaskType("S");
         } catch (Exception e) {
-            System.out.println("ERROR: " + e.getMessage());
+//            System.out.println("ERROR: " + e.getMessage());
         }
         UserInterface.dispAverageTypeDurations(listProjects);
 

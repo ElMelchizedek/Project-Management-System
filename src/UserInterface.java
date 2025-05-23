@@ -135,67 +135,103 @@ public class UserInterface {
         return matchingTasks;
     }
 
-    // DESC: Calculates the average duration of Tasks within a Project that match a specified type, as indicated by the
-    // matches parameter. 
-    // USAGE: auxGetAverageTypeDurations().
-    private static double auxCalculateAverageDuration(Project selectProject, int[] matches, int stopAtProject) {
-        int sumDurations = 0;
-        int amountMatching = 0;
-        for (int ID: matches) {
-            try {
-                sumDurations += selectProject.retrieveTaskByID(ID).getTaskDuration();
-                amountMatching++;
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getMessage());
+    // Apodictic.
+    private static Task[] auxGetAllTasksMatchingType(Project project, String type) throws Exception {
+        // Collate all Tasks matching type into one super-array.
+        Task[] allTasks = new Task[project.getListTasks().length];
+        int metaIncrement = 0;
+        for (int i = 0; i < project.getListTasks().length; i++) {
+            if (project.getListTasks()[i].getTaskType() == type.toUpperCase().charAt(0)) {
+                allTasks[metaIncrement] = project.getListTasks()[i];
+                metaIncrement++;
             }
         }
-        // Here I do some funky stuff since I can't just return an array, so I need to be able to distinguish different
-        // outcomes whilst not being able to have multiple return types for the method.
-        // To differentiate I do this by multiplying the number by a defined power of 10 that is then checked by the
-        // calling function to figure out what kind of return value it is from this function.
-        if (stopAtProject != 0) {
-            return (((double)sumDurations / (double)amountMatching) * SECRET_NUMBER);
-        } else { return sumDurations; }
+        if (metaIncrement == 0) {
+            throw new Exception("No tasks matching type " + type + " were found in Project #" + project.getProjectID());
+        }
+
+        return allTasks;
     }
 
-    // Wrapper for auxCalculateAverageDuration().
-    // DESC: It allows for both the calculating of average Task durations per a specified Type within a certain Project,
-    // (indicated by the stopAtProject parameter) or for all Projects overall.
-    // USAGE: dispAverageTaskDurations() and auxPrettyAverageTypeDurationsByProject().
-    private static double auxGetAverageTypeDurations(char type, int stopAtProject, Project[] listProjects) {
-        int amountMatching = 0;
-        int sumDurations = 0;
+    // Gets the Sum of the specified tasks in the passed array.
+    private static int auxGetSumOfMultipleTaskDurations(Task[] tasks) throws Exception {
+        int sum = 0;
+        for (Task task: tasks) {
+            sum += task.getTaskDuration();
+        }
+        if (sum == 0) {
+            throw new Exception("All tasks have no duration and so could not determine sum of their durations.");
+        }
+        return sum;
+    }
 
-        // I wish I had arrays right now.
+    // Calculates the average duration of all Tasks of a certain type in a specific Project.
+    private static double auxSpecificGetAverageTypeDurations(Project project, String type) throws Exception {
+        Task[] matchingTasks = null;
+        try {
+            matchingTasks = auxGetAllTasksMatchingType(project, type);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+            return -1;
+        }
 
+        int sum = auxGetSumOfMultipleTaskDurations(matchingTasks);
+
+        return ((double) sum / (double) matchingTasks.length);
+    }
+
+    // Calculates the average duration for all Tasks of a certain type across all Projects.
+    private static double auxOverallGetAverageTypeDurations(Project[] listProjects, String type) throws Exception {
+        // Calculate the amount of Projects in the Project list.
+        int amountProjects = 0;
         for (int i = 0; i < listProjects.length; i++) {
-            try {
-                int[] matches = auxFilterTypes(listProjects[i], type);
-                double result = auxCalculateAverageDuration(listProjects[i], matches, stopAtProject);
-                if (listProjects[i] != null && stopAtProject == listProjects[i].getProjectID()) {
-                    return (result / SECRET_NUMBER);
-                }
-                if (matches.length != 0) {
-                    sumDurations += (int) result;
-                    amountMatching += matches.length;
-                }
-            } catch (Exception e) {
-                System.out.println("ERROR: " + e.getMessage());
+            if (listProjects[i] == null && i != 0) {
+                amountProjects = i;
+                break;
+            } else if (i == 0) {
+                throw new Exception("No Projects to calculate from.");
             }
         }
 
-        return ((double) sumDurations / (double) amountMatching);
+        // Generate array of average Task durations for each Project.
+        double[] averagesArray = new double[amountProjects];
+        int metaIncrement = 0;
+        for (Project project: listProjects) {
+            averagesArray[metaIncrement] = auxSpecificGetAverageTypeDurations(project, type);
+            metaIncrement++;
+        }
+        if (metaIncrement == 0) {
+            throw new Exception("metaIncrement resulted in 0 in auxOverallGetAverageTypeDurations() for type " + type + ".");
+        }
+
+        // Calculate Absolute Overall duration for all Tasks for specified type across all Projects.
+        double sumOfAverages = 0.0;
+        for (int i = 0; i < (metaIncrement + 1); i++) {
+            sumOfAverages += averagesArray[i];
+        }
+        if (sumOfAverages == 0) {
+            throw new Exception("sumOfAverages resulted in 0 in auxOverallGetAverageTypeDurations() for type " + type + ".");
+        }
+
+        return (sumOfAverages / (double) metaIncrement);
+
     }
 
     // DESC: Displays the average duration of Tasks within a Project, divided by type.
     // USAGE: dispAverageTypeDurations().
-    public static void auxPrettyAverageTypeDurationsByProject(Project project, int num, Project[] listProjects) {
+    public static void auxPrettyAverageTypeDurationsByProject(Project project) {
+        String[][] typesCombo = {{"A", "administrative"}, {"L", "logistics"}, {"S", "support"}};
+
         if (project != null) {
             System.out.println("Project ID " + project.getProjectID() + ":");
             if (project.getListTasks().length != 0) {
-                System.out.println("\t* Average task duration of administrative tasks is " + auxGetAverageTypeDurations('A', num, listProjects) + ".");
-                System.out.println("\t* Average task duration of logistics tasks is " + auxGetAverageTypeDurations('L', num, listProjects) + ".");
-                System.out.println("\t* Average task duration of support tasks is " + auxGetAverageTypeDurations('S', num, listProjects) + ".");
+                for (String[] combo : typesCombo) {
+                    try {
+                        System.out.println("\t* Average task duration of " + combo[1] + " is " + auxSpecificGetAverageTypeDurations(project, combo[0]) + ".");
+                    } catch (Exception e) {
+                        System.out.print("ERROR: " + e.getMessage());
+                    }
+                }
             } else {
                 System.out.println("\t* No created tasks to report.");
             }
@@ -339,7 +375,12 @@ public class UserInterface {
         System.out.println("---Average Task Duration---");
         System.out.println("Average task duration of all task types across all projects:");
         for (String[] type : types) {
-            double duration = auxGetAverageTypeDurations(type[0].charAt(0), 0, listProjects);
+            double duration = Float.NaN;
+            try {
+                duration = auxOverallGetAverageTypeDurations(listProjects, type[0]);
+            } catch (Exception e) {
+                System.out.println("ERROR: " + e.getMessage());
+            }
             if (duration != Float.NaN) {
                 System.out.println("\t* Average task duration of all " + type[1] + " is " + duration + " hours.");
             } else {
@@ -348,8 +389,8 @@ public class UserInterface {
         }
 
         System.out.println("---Breakdown by Project---");
-        for (int i = 0; i < listProjects.length; i++) {
-            auxPrettyAverageTypeDurationsByProject(listProjects[i], i, listProjects);
+        for (Project project: listProjects) {
+            auxPrettyAverageTypeDurationsByProject(project);
         }
     }
 
@@ -700,13 +741,13 @@ public class UserInterface {
     // *** Main entry method. ***
     public static void main(String[] args) {
         // Debugging toggles.
-        boolean debug = true;
-        boolean projectCreate = true;
-        boolean taskCreate = true;
-        boolean viewProjects = true;
-        boolean viewCompleteTasks = true;
-        boolean viewFilteredTasks = true;
-        boolean viewAverageTypeDurations = true;
+        boolean debug = false;
+        boolean projectCreate = false;
+        boolean taskCreate = false;
+        boolean viewProjects = false;
+        boolean viewCompleteTasks = false;
+        boolean viewFilteredTasks = false;
+        boolean viewAverageTypeDurations = false;
 
         Project[] projects = new Project[10];
 
@@ -724,23 +765,25 @@ public class UserInterface {
         Scanner input = new Scanner(System.in);
 
         // Debug stuff
-        if (projectCreate) {
-            projects = Tests.debugProjectCreate(projects);
-        }
-        if (taskCreate) {
-            projects = Tests.debugTaskCreate(projects);
-        }
-        if (viewProjects) {
-            projects = Tests.debugViewProjects(projects);
-        }
-        if (viewCompleteTasks) {
-            projects = Tests.debugViewCompleteTasks(projects);
-        }
-        if (viewFilteredTasks) {
-            projects = Tests.debugViewFilteredTasks(projects);
-        }
-        if (viewAverageTypeDurations) {
-            projects = Tests.debugViewAverageTypeDurations(projects);
+        if (debug) {
+            if (projectCreate) {
+                projects = Tests.debugProjectCreate(projects);
+            }
+            if (taskCreate) {
+                projects = Tests.debugTaskCreate(projects);
+            }
+            if (viewProjects) {
+                projects = Tests.debugViewProjects(projects);
+            }
+            if (viewCompleteTasks) {
+                projects = Tests.debugViewCompleteTasks(projects);
+            }
+            if (viewFilteredTasks) {
+                projects = Tests.debugViewFilteredTasks(projects);
+            }
+            if (viewAverageTypeDurations) {
+                projects = Tests.debugViewAverageTypeDurations(projects);
+            }
         }
 
         System.out.println("———Project Management System———");
