@@ -406,17 +406,14 @@ public class UserInterface {
     }
 
     public static void auxSaveFile(String name, Project[] listProjects) throws Exception {
-        PrintWriter outputStream;
-        try {
-            outputStream = new PrintWriter(name);
+        try (PrintWriter outputStream = new PrintWriter(name)) {
             for (Project project: listProjects) {
                 if (project == null) { continue; }
                 outputStream.println(project.getProjectID() + "," + project.getProjectName() + "," + project.getProjectType());
                 for (Task task: project.getListTasks()) {
                     if (task == null) { continue; }
-                    outputStream.println(task.getTaskID() + "," + task.getTaskType() + "," + task.getTaskDuration() + "," + task.status());
+                    outputStream.println(task.getTaskID() + "," + task.getTaskType() + "," + task.getTaskDuration() + "," + task.getCompleted());
                 }
-            outputStream.close();
             }
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
