@@ -358,7 +358,10 @@ public class UserInterface {
                 if (items.length == 3) {
                     Project newProject = null;
                     try {
-                        newProject = Project.createProject(listProjects, Integer.parseInt(items[0]), items[1], items[2]);
+                        newProject = Project.createProject(listProjects,
+                                Integer.parseInt(items[0]),
+                                items[1],
+                                items[2]);
                     } catch (Exception e) {
                         System.out.println("ERROR: " + e.getMessage());
                         System.exit(1);
@@ -373,7 +376,21 @@ public class UserInterface {
                 // Task
                 } else if (items.length == 4) {
                     try {
-                        listProjects[currentProjectIndex].createTask(Integer.parseInt(items[0]), "", items[1], Integer.parseInt(items[2]), listProjects);
+                        boolean completed;
+                        String normalised = items[3].toUpperCase();
+                        if (normalised.equals("TRUE")) {
+                            completed = true;
+                        } else if (normalised.equals("FALSE")) {
+                            completed = false;
+                        } else {
+                            throw new Exception("Value for Task completion status in line of selected file is invalid.");
+                        }
+                        listProjects[currentProjectIndex - 1].createTask(Integer.parseInt(items[0]),
+                                "No description",
+                                items[1],
+                                Integer.parseInt(items[2]),
+                                listProjects,
+                                completed);
                     } catch (Exception e) {
                         System.out.println("ERROR: " + e.getMessage());
                         System.exit(1);
@@ -404,6 +421,7 @@ public class UserInterface {
                 auxViewProject(project, IDs);
             }
         }
+        System.out.print("\n");
     }
 
     // DESC: Displaying Completed Tasks
@@ -532,7 +550,6 @@ public class UserInterface {
             try {
                 tempProject = Project.createProject(projects, ID, name, type);
                 finished = true;
-                System.out.println("Created Project #" + ID + " of name " + name + " and type " + type + ".");
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
                 System.out.println("Re-attempting creation...");
@@ -665,9 +682,8 @@ public class UserInterface {
 
 
             try {
-                certainProject.createTask(newID, newDescription, newType, newDuration, listProjects);
+                certainProject.createTask(newID, newDescription, newType, newDuration, listProjects, false);
                 finished = true;
-                System.out.println("Created Task #" + newID + " of type " + newType + " lasting " + newDuration + "h, assigned to Project #" + newID + ".");
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
             }
@@ -815,7 +831,7 @@ public class UserInterface {
         Project[] listProjects = new Project[10];
 
         // Get file name
-        System.out.println("Please enter the file name: ");
+        System.out.print("Please enter the file name: ");
         String name = "";
         while (true) {
             name = auxCheckInputValid("", input);
@@ -835,6 +851,8 @@ public class UserInterface {
         if (listProjects == null) {
             throw new Exception("listProjects returned null from auxLoadFile().");
         }
+
+        System.out.print("\n");
         return listProjects;
     }
 
@@ -961,6 +979,7 @@ public class UserInterface {
                             System.out.println("ERROR: " + e.getMessage());
                             System.exit(1);
                         }
+                        break;
                     default:
                         System.out.println("Unknown option.");
                         break;

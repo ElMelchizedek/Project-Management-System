@@ -20,7 +20,7 @@ public class Tests {
 
     private static void debugAttemptTaskCreate(Project project, int ID, String description, String type, int duration, Project[] listProjects, boolean print) {
         try {
-            project.createTask(ID, description, type, duration, listProjects);
+            project.createTask(ID, description, type, duration, listProjects, false);
             if (print) {
                 System.out.println("✅");
             }

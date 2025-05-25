@@ -88,7 +88,7 @@ public class Task {
         } else { return "Pending"; }
     }
 
-    public static Task createTask(Project project, int newID, String newDesc, String newType, int newDuration, Project[] listProjects) throws Exception {
+    public static Task createTask(Project project, int newID, String newDesc, String newType, int newDuration, Project[] listProjects, boolean completed) throws Exception {
         Task tempTask = new Task();
 
         if (project.checkListTasksFull()) {
@@ -99,8 +99,9 @@ public class Task {
         tempTask.setTaskType(newType);
         tempTask.setDescription(newDesc);
         tempTask.setTaskDuration(newDuration);
-        tempTask.setCompleted(false);
+        tempTask.setCompleted(completed);
 
+        System.out.println("Created Task #" + newID + " of type " + newType + " lasting " + newDuration + "h, assigned to Project #" + newID + ".");
         return tempTask;
     }
 

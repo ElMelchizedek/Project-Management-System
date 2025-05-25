@@ -85,10 +85,10 @@ public class Project {
     }
 
     // Methods relating to Tasks.
-    public void createTask(int ID, String description, String type, int duration, Project[] listProjects) throws Exception {
+    public void createTask(int ID, String description, String type, int duration, Project[] listProjects, boolean completed) throws Exception {
         for (int i = 0; i < listTasks.length; i++) {
             if (listTasks[i] == null) {
-                listTasks[i] = Task.createTask(this, ID, description, type, duration, listProjects);
+                listTasks[i] = Task.createTask(this, ID, description, type, duration, listProjects, completed);
                 return;
             }
         }
@@ -144,6 +144,7 @@ public class Project {
         tempProject.setProjectType(newType);
         tempProject.setListTasks(newType.toUpperCase());
 
+        System.out.println("Created Project #" + newID + " of name " + newName + " and type " + newType + ".");
         return tempProject;
     }
 
