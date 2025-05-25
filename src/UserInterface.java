@@ -1,7 +1,6 @@
 import java.util.Scanner;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.PrintWriter;
 
 public class UserInterface {
     /*
@@ -405,6 +404,26 @@ public class UserInterface {
 
         return listProjects;
     }
+
+    public static void auxSaveFile(String name, Project[] listProjects) throws Exception {
+        PrintWriter outputStream;
+        try {
+            outputStream = new PrintWriter(name);
+            for (Project project: listProjects) {
+                if (project == null) { continue; }
+                outputStream.println(project.getProjectID() + "," + project.getProjectName() + "," + project.getProjectType());
+                for (Task task: project.getListTasks()) {
+                    if (task == null) { continue; }
+                    outputStream.println(task.getTaskID() + "," + task.getTaskType() + "," + task.getTaskDuration() + "," + task.status());
+                }
+            outputStream.close();
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+            System.exit(1);
+        }
+    }
+
 
     // *** Display Submethods ***
 
@@ -828,10 +847,11 @@ public class UserInterface {
     }
 
     private static Project[] optionLoad(Scanner input) throws Exception {
+        System.out.println("*** FILE LOAD WIZARD ***");
         Project[] listProjects = new Project[10];
 
         // Get file name
-        System.out.print("Please enter the file name: ");
+        System.out.print("Please enter the file name (extension included): ");
         String name = "";
         while (true) {
             name = auxCheckInputValid("", input);
@@ -856,8 +876,28 @@ public class UserInterface {
         return listProjects;
     }
 
-    private static void optionSave(Project[] listProjects) {
+    private static void optionSave(Scanner input, Project[] listProjects) {
+        System.out.println("*** FILE SAVE WIZARD ***");
 
+        // Get chosen file name
+        System.out.print("Please enter the name for the file that is to be saved (extension included): ");
+        String name = "";
+        while (true) {
+            name = auxCheckInputValid("", input);
+            if (name.equals(SECRET_STRING)) {
+                continue;
+            }
+            break;
+        }
+
+        try {
+            auxSaveFile(name, listProjects);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+            System.exit(1);
+        }
+
+        System.out.print("\n");
     }
 
 
@@ -979,6 +1019,10 @@ public class UserInterface {
                             System.out.println("ERROR: " + e.getMessage());
                             System.exit(1);
                         }
+                        break;
+                    // Save File.
+                    case "SF":
+                        optionSave(input, projects);
                         break;
                     default:
                         System.out.println("Unknown option.");
