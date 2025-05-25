@@ -1,13 +1,13 @@
 import java.util.Scanner;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 
 public class UserInterface {
     /*
     !!! GLOBAL VARIABLES !!!
      */
 
-    // Constant needed for auxCalculateAverageDuration(), as a way to distinguish calls made to calculate durations for
-    // a specific project, or for durations of a certain type across all projects.
-    public static final double SECRET_NUMBER = 5051818;
     // Constant needed for auxCheckInputValid(String) to check if it failed a check.
     // Pay no attention to its contents: It is like this to remove the possibility of a false positive.
     public static final String SECRET_STRING =  """
@@ -324,6 +324,69 @@ public class UserInterface {
             }
         }
 
+    }
+
+    public static Project[] auxLoadFile(String name) throws Exception {
+        Scanner inputStream;
+        String[] contents = new String[256];
+        Project[] listProjects = new Project[10];
+
+        System.out.println("Attempting to load file " + name + " into memory...");
+        int i = 0;
+        try {
+            inputStream = new Scanner(new File(name));
+            while (inputStream.hasNextLine()) {
+                contents[i] = inputStream.nextLine();
+                i++;
+            }
+            inputStream.close();
+        } catch (Exception e) {
+           System.out.println("ERROR: " + e.getMessage());
+            System.exit(1);
+        }
+
+        if (i == 0) {
+            throw new Exception("Could not read any text from specified file.");
+        }
+
+        System.out.println("Attempting to parse file contents...");
+        int currentProjectIndex = 0;
+        for (String line: contents) {
+            if (line != null) {
+                String[] items = line.split(",");
+                // Project
+                if (items.length == 3) {
+                    Project newProject = null;
+                    try {
+                        newProject = Project.createProject(listProjects, Integer.parseInt(items[0]), items[1], items[2]);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                        System.exit(1);
+                    }
+                    try {
+                        listProjects = auxAddToArray(listProjects, newProject);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                        System.exit(1);
+                    }
+                    currentProjectIndex++;
+                // Task
+                } else if (items.length == 4) {
+                    try {
+                        listProjects[currentProjectIndex].createTask(Integer.parseInt(items[0]), "", items[1], Integer.parseInt(items[2]), listProjects);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                        System.exit(1);
+                    }
+                }
+            }
+        }
+
+        if (listProjects[0] == null) {
+            throw new Exception("Could not load any Projects from specified file.");
+        }
+
+        return listProjects;
     }
 
     // *** Display Submethods ***
@@ -748,18 +811,48 @@ public class UserInterface {
         }
     }
 
+    private static Project[] optionLoad(Scanner input) throws Exception {
+        Project[] listProjects = new Project[10];
+
+        // Get file name
+        System.out.println("Please enter the file name: ");
+        String name = "";
+        while (true) {
+            name = auxCheckInputValid("", input);
+            if (name.equals(SECRET_STRING)) {
+                continue;
+            }
+            break;
+        }
+
+        try {
+            listProjects = auxLoadFile(name);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+            System.exit(1);
+        }
+
+        if (listProjects == null) {
+            throw new Exception("listProjects returned null from auxLoadFile().");
+        }
+        return listProjects;
+    }
+
+    private static void optionSave(Project[] listProjects) {
+
+    }
 
 
     // *** Main entry method. ***
     public static void main(String[] args) {
         // Debugging toggles.
-        boolean debug = true;
+        boolean debug = false;
         boolean projectCreate = false;
         boolean taskCreate = false;
         boolean viewProjects = false;
         boolean viewCompleteTasks = false;
         boolean viewFilteredTasks = false;
-        boolean viewAverageTypeDurations = true;
+        boolean viewAverageTypeDurations = false;
 
         Project[] projects = new Project[10];
 
@@ -772,6 +865,8 @@ public class UserInterface {
                 \t* CT: create task
                 \t* ET: edit task
                 \t* RT: remove task
+                \t* LF: load file
+                \t* SF: save file
                 """;
 
         Scanner input = new Scanner(System.in);
@@ -858,6 +953,14 @@ public class UserInterface {
                     case "RT":
                         optionRemoveTask(input, projects);
                         break;
+                    // Load File.
+                    case "LF":
+                        try {
+                            projects = optionLoad(input);
+                        } catch (Exception e) {
+                            System.out.println("ERROR: " + e.getMessage());
+                            System.exit(1);
+                        }
                     default:
                         System.out.println("Unknown option.");
                         break;
