@@ -1,9 +1,0 @@
-101,Website Redesign,Large
-984,A,5,true
-745,L,8,false
-654,S,3,true
-110,Mobile App Prototype,Medium
-145,A,6,false
-657,S,4,true
-212,ERP System Upgrade,Small
-369,L,10,false
