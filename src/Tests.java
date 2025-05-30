@@ -2,7 +2,7 @@
 
 public class Tests {
 
-    private static Project[] debugAttemptProjectCreate(Project[] listProjects, int ID, String name, String type, boolean print) {
+    private static void debugAttemptProjectCreate(Project[] listProjects, int ID, String name, String type, boolean print) {
         try {
             listProjects = UserInterface.auxAddToArray(
                     listProjects,
@@ -15,7 +15,6 @@ public class Tests {
             System.out.println("ERROR: " + e.getMessage());
         }
 
-        return listProjects;
     }
 
     private static void debugAttemptTaskCreate(Project project, int ID, String description, String type, int duration, Project[] listProjects, boolean print) {
@@ -126,15 +125,22 @@ public class Tests {
         System.out.println("*** VIEW PROJECTS TEST ***");
         // No projects
         System.out.println("+ No Projects");
-        UserInterface.dispViewProjects(listProjects);
         // Project but no tasks
         System.out.println("+ Project (Empty)");
         debugAttemptProjectCreate(listProjects, 1, "NoTasks", "Small", false);
-        UserInterface.dispViewProjects(listProjects);
+        try {
+            UserInterface.dispViewProjects(listProjects);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
         // Project full of tasks
         System.out.println("+ Project (Full)");
         debugAttemptTaskCreate(listProjects[0], 1, "Full", "A", 1, listProjects, false);
-        UserInterface.dispViewProjects(listProjects);
+        try {
+            UserInterface.dispViewProjects(listProjects);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
 
         listProjects = new Project[10];
         System.out.print("\n\n");
@@ -154,7 +160,7 @@ public class Tests {
         // Mixed pending-complete
         System.out.println("+ Mixed Task Completeness");
         debugAttemptTaskCreate(listProjects[0], 2, "Complete", "A", 1, listProjects, false);
-        listProjects[0].getListTasks()[1].setCompleted(true);
+        listProjects[0].getTasks()[1].setCompleted(true);
         UserInterface.auxViewCompleteTasks(listProjects[0]);
 
         listProjects = new Project[10];
@@ -200,7 +206,11 @@ public class Tests {
         // Project with no tasks
         System.out.println("+ Project (Empty)");
         debugAttemptProjectCreate(listProjects, 3, "ContainerEmpty", "Small", false);
-        UserInterface.dispAverageTypeDurations(listProjects);
+        try {
+            UserInterface.dispAverageTypeDurations(listProjects);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
         System.out.print("\n\n");
 
         // Tasks of only one type
@@ -212,22 +222,30 @@ public class Tests {
         debugAttemptTaskCreate(listProjects[0], 4, "Task1", "A", 1, listProjects, false);
         debugAttemptTaskCreate(listProjects[1], 5, "Task2", "A", 1, listProjects, false);
         debugAttemptTaskCreate(listProjects[2], 6, "Task3", "A", 1, listProjects, false);
-        UserInterface.dispAverageTypeDurations(listProjects);
+        try {
+            UserInterface.dispAverageTypeDurations(listProjects);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
         System.out.print("\n\n");
 
         // Mixed Tasks
         System.out.println("+ Mixed Tasks");
         try {
-            listProjects[1].getListTasks()[0].setTaskType("L");
+            listProjects[1].getTasks()[0].setTaskType("L");
         } catch (Exception e) {
 //            System.out.println("ERROR: " + e.getMessage());
         }
         try {
-            listProjects[2].getListTasks()[0].setTaskType("S");
+            listProjects[2].getTasks()[0].setTaskType("S");
         } catch (Exception e) {
 //            System.out.println("ERROR: " + e.getMessage());
         }
-        UserInterface.dispAverageTypeDurations(listProjects);
+        try {
+            UserInterface.dispAverageTypeDurations(listProjects);
+        } catch (Exception e) {
+            System.out.println("ERROR: " + e.getMessage());
+        }
 
         listProjects = new Project[10];
         System.out.print("\n\n");

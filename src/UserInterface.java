@@ -43,7 +43,7 @@ public class UserInterface {
     // USAGE: auxViewProject().
     private static void auxTaskPrettyInfo(Task task, boolean includeStatus) {
         if (task != null) {
-            System.out.print("\t* Task ID: " + task.getTaskID() +
+            System.out.print("\t* Task ID: " + task.getTaskId() +
                     ", Description: " + task.getDescription() +
                     ", Type: " + task.getTaskType() +
                     ", Duration: " + task.getTaskDuration());
@@ -60,21 +60,21 @@ public class UserInterface {
         if (project != null) {
             int amountTasks = project.amountTasks();
             if (amountTasks != 0) {
-                System.out.println("Project ID: " + project.getProjectID() +
+                System.out.println("Project ID: " + project.getProjectId() +
                         ", Project Name: " + project.getProjectName() +
                         ", Project Type: " + project.getProjectType() +
                         ", Num of tasks: " + amountTasks);
                 System.out.println("Tasks:");
 
-                for (Task task: project.getListTasks()) {
+                for (Task task: project.getTasks()) {
                     for (int ID: chosenTasks) {
-                        if (task.getTaskID() == ID) {
+                        if (task.getTaskId() == ID) {
                             auxTaskPrettyInfo(task, true);
                         }
                     }
                 }
 
-            } else { System.out.println("No Tasks to report for Project #" + project.getProjectID() + "."); }
+            } else { System.out.println("No Tasks to report for Project #" + project.getProjectId() + "."); }
         }
     }
 
@@ -83,7 +83,7 @@ public class UserInterface {
     private static Project auxGetProjectByID(int ProjectID, Project[] listProjects) {
         Project certainProject = null;
         for (Project project: listProjects) {
-            if (project != null && project.getProjectID() == ProjectID) {
+            if (project != null && project.getProjectId() == ProjectID) {
                 certainProject = project;
             }
         }
@@ -115,20 +115,22 @@ public class UserInterface {
     // E.g., if a Project's task1 and task3 have the specified type, then the String returned will be "13".
     // USAGE: dispFilteredTasks() and auxGetAverageTypeDurations().
     private static int[] auxFilterTypes(Project project, char type) throws Exception {
-        int[] matchingTasks = null;
-
-        int i = 0;
-        if (project != null) {
-            for (int j = 0; j < project.getListTasks().length; j++) {
-                if (project.getListTasks()[j] != null && project.getListTasks()[j].getTaskType() == type) {
-                    matchingTasks[i] = j;
-                    i++;
-                }
-            }
+        int matchCount = 0;
+        for (Task task : project.getTasks()) {
+            if (task != null && task.getTaskType() == type) matchCount++;
         }
 
-        if (matchingTasks == null) {
-            throw new Exception("Could not find any matching Tasks in auxFilterTypes() for Project #" + project.getProjectID() + ".");
+        if (matchCount == 0) {
+            throw new Exception("Could not find any matching Tasks...");
+        }
+
+        int[] matchingTasks = new int[matchCount];
+        int i = 0;
+        for (int j = 0; j < project.getTasks().length; j++) {
+            if (project.getTasks()[j] != null &&
+                    project.getTasks()[j].getTaskType() == type) {
+                matchingTasks[i++] = j;
+            }
         }
 
         return matchingTasks;
@@ -137,16 +139,16 @@ public class UserInterface {
     // Apodictic.
     private static Task[] auxGetAllTasksMatchingType(Project project, String type) throws Exception {
         // Collate all Tasks matching type into one super-array.
-        Task[] allTasks = new Task[project.getListTasks().length];
+        Task[] allTasks = new Task[project.getTasks().length];
         int metaIncrement = 0;
-        for (int i = 0; i < project.getListTasks().length; i++) {
-            if (project.getListTasks()[i].getTaskType() == type.toUpperCase().charAt(0)) {
-                allTasks[metaIncrement] = project.getListTasks()[i];
+        for (int i = 0; i < project.getTasks().length; i++) {
+            if (project.getTasks()[i].getTaskType() == type.toUpperCase().charAt(0)) {
+                allTasks[metaIncrement] = project.getTasks()[i];
                 metaIncrement++;
             }
         }
         if (metaIncrement == 0) {
-            throw new Exception("No tasks matching type " + type + " were found in Project #" + project.getProjectID());
+            throw new Exception("No tasks matching type " + type + " were found in Project #" + project.getProjectId());
         }
 
         return allTasks;
@@ -166,7 +168,7 @@ public class UserInterface {
 
     // Calculates the average duration of all Tasks of a certain type in a specific Project.
     private static double auxSpecificGetAverageTypeDurations(Project project, String type) throws Exception {
-        Task[] matchingTasks = null;
+        Task[] matchingTasks;
         try {
             matchingTasks = auxGetAllTasksMatchingType(project, type);
         } catch (Exception e) {
@@ -183,8 +185,8 @@ public class UserInterface {
     private static double auxOverallGetAverageTypeDurations(Project[] listProjects, String type) throws Exception {
         // Calculate the amount of Projects in the Project list.
         int amountProjects = 0;
-        for (int i = 0; i < listProjects.length; i++) {
-            if (listProjects[i] != null) {
+        for (Project listProject : listProjects) {
+            if (listProject != null) {
                 amountProjects++;
             }
         }
@@ -229,8 +231,8 @@ public class UserInterface {
         String[][] typesCombo = {{"A", "administrative"}, {"L", "logistics"}, {"S", "support"}};
 
         if (project != null) {
-            System.out.println("Project ID " + project.getProjectID() + ":");
-            if (project.getListTasks().length != 0) {
+            System.out.println("Project ID " + project.getProjectId() + ":");
+            if (project.getTasks().length != 0) {
                 for (String[] combo : typesCombo) {
                     try {
                         double average = auxSpecificGetAverageTypeDurations(project, combo[0]);
@@ -277,10 +279,6 @@ public class UserInterface {
             System.out.print("Negative values are not permitted. Please try again: ");
             input.nextLine();
             return -1;
-        } if (value > Integer.MAX_VALUE) {
-            System.out.print("Inputted value was greater than the maximum value allowed for integers. Please try again: ");
-            input.nextLine();
-            return -1;
         }
         // Need to do this otherwise it won't be able to read the input for the name because of a hanging newline.
         input.nextLine();
@@ -291,7 +289,7 @@ public class UserInterface {
         boolean found = false;
 
         for (Project project: listProjects) {
-            if (project != null && project.getProjectID() == ID) {
+            if (project != null && project.getProjectId() == ID) {
                 found = true;
                 break;
             }
@@ -301,8 +299,8 @@ public class UserInterface {
     }
 
     public static void auxViewCompleteTasks(Project certainProject) {
-        System.out.println("Completed Tasks in Project #" + certainProject.getProjectID() + ".");
-        for (Task task: certainProject.getListTasks()) {
+        System.out.println("Completed Tasks in Project #" + certainProject.getProjectId() + ".");
+        for (Task task: certainProject.getTasks()) {
             if (task != null && task.getCompleted()) {
                 auxTaskPrettyInfo(task, false);
             }
@@ -341,7 +339,7 @@ public class UserInterface {
             inputStream.close();
         } catch (Exception e) {
            System.out.println("ERROR: " + e.getMessage());
-            System.exit(1);
+           return null;
         }
 
         if (i == 0) {
@@ -357,19 +355,23 @@ public class UserInterface {
                 if (items.length == 3) {
                     Project newProject = null;
                     try {
-                        newProject = Project.createProject(listProjects,
-                                Integer.parseInt(items[0]),
-                                items[1],
-                                items[2]);
+                        if (listProjects != null) {
+                            newProject = Project.createProject(listProjects,
+                                    Integer.parseInt(items[0]),
+                                    items[1],
+                                    items[2]);
+                        }
                     } catch (Exception e) {
                         System.out.println("ERROR: " + e.getMessage());
-                        System.exit(1);
+                        return null;
                     }
                     try {
-                        listProjects = auxAddToArray(listProjects, newProject);
+                        if (listProjects != null) {
+                            listProjects = auxAddToArray(listProjects, newProject);
+                        }
                     } catch (Exception e) {
                         System.out.println("ERROR: " + e.getMessage());
-                        System.exit(1);
+                        return null;
                     }
                     currentProjectIndex++;
                 // Task
@@ -384,40 +386,41 @@ public class UserInterface {
                         } else {
                             throw new Exception("Value for Task completion status in line of selected file is invalid.");
                         }
-                        listProjects[currentProjectIndex - 1].createTask(Integer.parseInt(items[0]),
-                                "No description",
-                                items[1],
-                                Integer.parseInt(items[2]),
-                                listProjects,
-                                completed);
+                        if (listProjects != null) {
+                            listProjects[currentProjectIndex - 1].createTask(Integer.parseInt(items[0]),
+                                    "No description",
+                                    items[1],
+                                    Integer.parseInt(items[2]),
+                                    listProjects,
+                                    completed);
+                        }
                     } catch (Exception e) {
                         System.out.println("ERROR: " + e.getMessage());
-                        System.exit(1);
+                        return null;
                     }
                 }
             }
         }
 
-        if (listProjects[0] == null) {
+        if (listProjects != null && listProjects[0] == null) {
             throw new Exception("Could not load any Projects from specified file.");
         }
 
         return listProjects;
     }
 
-    public static void auxSaveFile(String name, Project[] listProjects) throws Exception {
+    public static void auxSaveFile(String name, Project[] listProjects) {
         try (PrintWriter outputStream = new PrintWriter(name)) {
             for (Project project: listProjects) {
                 if (project == null) { continue; }
-                outputStream.println(project.getProjectID() + "," + project.getProjectName() + "," + project.getProjectType());
-                for (Task task: project.getListTasks()) {
+                outputStream.println(project.getProjectId() + "," + project.getProjectName() + "," + project.getProjectType());
+                for (Task task: project.getTasks()) {
                     if (task == null) { continue; }
-                    outputStream.println(task.getTaskID() + "," + task.getTaskType() + "," + task.getTaskDuration() + "," + task.getCompleted());
+                    outputStream.println(task.getTaskId() + "," + task.getTaskType() + "," + task.getTaskDuration() + "," + task.getCompleted());
                 }
             }
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
-            System.exit(1);
         }
     }
 
@@ -426,13 +429,15 @@ public class UserInterface {
 
     // DESC: Displaying All Project Details
     // USAGE: optionDisplay().
-    public static void dispViewProjects(Project[] listProjects) {
+    public static void dispViewProjects(Project[] listProjects) throws Exception {
+        if (listProjects[0] == null) throw new Exception("No Projects have been created.");
+
         for (Project project : listProjects) {
             if (project != null) {
                 int length = project.amountTasks();
                 int[] IDs = new int[length];
                 for (int i = 0; i < length; i++) {
-                    IDs[i] = project.getListTasks()[i].getTaskID();
+                    IDs[i] = project.getTasks()[i].getTaskId();
                 }
                 auxViewProject(project, IDs);
             }
@@ -442,16 +447,18 @@ public class UserInterface {
 
     // DESC: Displaying Completed Tasks
     // USAGE: optionDisplay().
-    private static void dispCompleteTasks(Scanner input, Project[] listProjects) {
+    private static void dispCompleteTasks(Scanner input, Project[] listProjects) throws Exception {
         Project certainProject = auxDialogueGetProject(input, listProjects);
-        if (certainProject == null || certainProject.amountTasks() == 0) { return; }
+        if (certainProject == null) throw new Exception("Specified Project is null.");
+        if (certainProject.amountTasks() == 0) throw new Exception("Specified Project does not have any Tasks.");
 
         auxViewCompleteTasks(certainProject);
     }
 
     // DESC: Filtering Tasks by Type
     // USAGE: optionDisplay().
-    private static void dispFilteredTasks(Scanner input, Project[] listProjects) {
+    private static void dispFilteredTasks(Scanner input, Project[] listProjects) throws Exception {
+        if (listProjects[0] == null) throw new Exception("No Projects have been created.");
 
         System.out.print("Enter the type to filter by ([A]dministrative, [L]ogistical, or [S]upport): ");
         String filter;
@@ -478,7 +485,9 @@ public class UserInterface {
 
     // DESC: Average Task Type Durations
     // USAGE: optionDisplay().
-    public static void dispAverageTypeDurations(Project[] listProjects) {
+    public static void dispAverageTypeDurations(Project[] listProjects) throws Exception {
+        if (listProjects[0] == null) throw new Exception("No Projects have been created.");
+
         String[][] types = {{"A", "administrative"}, {"L", "logistics"}, {"S", "support"}};
 
         System.out.println("---Average Task Duration---");
@@ -566,6 +575,7 @@ public class UserInterface {
             try {
                 tempProject = Project.createProject(projects, ID, name, type);
                 finished = true;
+                System.out.println("Created Project #" + ID + " of name " + name + " and type " + type + ".");
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
                 System.out.println("Re-attempting creation...");
@@ -594,18 +604,16 @@ public class UserInterface {
             if (ID == -1) { continue; }
             // Check that Project with said ID in fact exists.
             if (auxGetProjectByID(ID, listProjects) == null) {
-                System.out.print("ERROR: No know Project has inputted ID. Please try again: ");
-                continue;
+                throw new Exception("No known Project has inputted ID.");
             }
             break;
         }
 
         int j = 0;
         for (Project project: listProjects) {
-            int index = -1;
 
             if (project != null) {
-                if (project.getProjectID() != ID) {
+                if (project.getProjectId() != ID) {
                     newList[j] = project;
                     j++;
                 }
@@ -700,6 +708,7 @@ public class UserInterface {
             try {
                 certainProject.createTask(newID, newDescription, newType, newDuration, listProjects, false);
                 finished = true;
+                System.out.println("Created Task #" + newID + " of type " + newType + " lasting " + newDuration + "h, assigned to Project #" + newID + ".");
             } catch (Exception e) {
                 System.out.println("ERROR: " + e.getMessage());
             }
@@ -710,7 +719,7 @@ public class UserInterface {
     // DESC: Provides an interactive wizard to edit a Task from.
     // NOTE: Really just a "mark Task completed" function.
     // USAGE: main().
-    private static void optionEditTask(Scanner input, Project[] listProjects) {
+    private static void optionEditTask(Scanner input, Project[] listProjects) throws Exception {
         Task certainTask = null;
         Project certainProject = null;
         boolean finished = false;
@@ -719,62 +728,65 @@ public class UserInterface {
         int TaskID = -1;
 
         while (!finished) {
-            if (ProjectID == -1) {
-                System.out.print("Please enter ID of Project containing Task to be edited: ");
-                while (true) {
-                    ProjectID = auxCheckInputValid(0, input);
-                    if (ProjectID == -1) {
-                        continue;
-                    }
-                    certainProject = auxGetProjectByID(ProjectID, listProjects);
-                    if (certainProject == null) {
-                        System.out.print("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
-                        continue;
-                    } else if (certainProject.amountTasks() == 0) {
-                        System.out.print("ERROR: Inputted Project ID references Project that does not contain any Tasks. Please try again: ");
-                        continue;
-                    }
-                    break;
-                }
-            }
-
-            if (TaskID == -1) {
-                System.out.print("Enter ID of Task to be edited: ");
-                while (true) {
-                    TaskID = auxCheckInputValid(0, input);
-                    if (TaskID == -1) {
-                        continue;
-                    }
-
-                    try {
-                        certainTask = certainProject.retrieveTaskByID(TaskID);
-                    } catch (Exception e) {
-                        System.out.println("ERROR: " + e.getMessage());
-                        return;
-                    }
-                    break;
-                }
-            }
-
-            System.out.print("Would you like to edit the completed status of the selected Task? (currently: " + certainTask.status() + ") [y/n] ");
-            String choice;
+            System.out.print("Please enter ID of Project containing Task to be edited: ");
             while (true) {
-                choice = auxCheckInputValid("", input);
-                if (choice.equals(SECRET_STRING)) {
+                ProjectID = auxCheckInputValid(0, input);
+                if (ProjectID == -1) {
                     continue;
                 }
-                choice = choice.toLowerCase();
-
-                if (choice.equals("y")) {
-                    certainTask.setCompleted(!certainTask.getCompleted());
-                    System.out.println("Status of Task #" + certainTask.getTaskID()
-                            + " of Project #" + certainProject.getProjectID()
-                            + " is now " + certainTask.status() + ".");
-                } else {
-                    System.out.println("Exhausted all attributes of Task to edit. Returning...");
+                certainProject = auxGetProjectByID(ProjectID, listProjects);
+                if (certainProject == null) {
+                    System.out.print("ERROR: Inputted Project ID does not match any existing Project. Please try again: ");
+                    continue;
+                } else if (certainProject.amountTasks() == 0) {
+                    System.out.print("ERROR: Inputted Project ID references Project that does not contain any Tasks. Please try again: ");
+                    continue;
                 }
-                return;
+                break;
             }
+
+            System.out.print("Enter ID of Task to be edited: ");
+            while (true) {
+                TaskID = auxCheckInputValid(0, input);
+                if (TaskID == -1) {
+                    continue;
+                }
+
+                try {
+                    certainTask = certainProject.retrieveTaskByID(TaskID);
+                } catch (Exception e) {
+                    System.out.println("ERROR: " + e.getMessage());
+                    return;
+                }
+                break;
+            }
+        }
+
+        if (certainProject == null) {
+            throw new Exception("Could not, for some reason, obtain specified Project in optionEditTask().");
+        }
+        if (certainTask == null) {
+            throw new Exception("Could not, for some reason, obtain specified Task in optionEditTask().");
+        }
+
+        System.out.print("Would you like to edit the completed status of the selected Task? (currently: " + certainTask.status() + ") [y/n] ");
+        String choice;
+        while (true) {
+            choice = auxCheckInputValid("", input);
+            if (choice.equals(SECRET_STRING)) {
+                continue;
+            }
+            choice = choice.toLowerCase();
+
+            if (choice.equals("y")) {
+                certainTask.setCompleted(!certainTask.getCompleted());
+                System.out.println("Status of Task #" + certainTask.getTaskId()
+                        + " of Project #" + certainProject.getProjectId()
+                        + " is now " + certainTask.status() + ".");
+            } else {
+                System.out.println("Exhausted all attributes of Task to edit. Returning...");
+            }
+            return;
         }
     }
 
@@ -823,16 +835,32 @@ public class UserInterface {
             if (line == -1) { continue; }
             switch (line) {
                 case 2:
-                    dispViewProjects(listProjects);
+                    try {
+                        dispViewProjects(listProjects);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
                     break;
                 case 3:
-                    dispCompleteTasks(input, listProjects);
+                    try {
+                        dispCompleteTasks(input, listProjects);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
                     break;
                 case 4:
-                    dispFilteredTasks(input, listProjects);
+                    try {
+                        dispFilteredTasks(input, listProjects);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
                     break;
                 case 5:
-                    dispAverageTypeDurations(listProjects);
+                    try {
+                        dispAverageTypeDurations(listProjects);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
                     break;
                 case 1:
                     return;
@@ -845,11 +873,11 @@ public class UserInterface {
 
     private static Project[] optionLoad(Scanner input) throws Exception {
         System.out.println("*** FILE LOAD WIZARD ***");
-        Project[] listProjects = new Project[10];
+        Project[] listProjects;
 
         // Get file name
         System.out.print("Please enter the file name (extension included): ");
-        String name = "";
+        String name;
         while (true) {
             name = auxCheckInputValid("", input);
             if (name.equals(SECRET_STRING)) {
@@ -862,7 +890,7 @@ public class UserInterface {
             listProjects = auxLoadFile(name);
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
-            System.exit(1);
+            return null;
         }
 
         if (listProjects == null) {
@@ -878,7 +906,7 @@ public class UserInterface {
 
         // Get chosen file name
         System.out.print("Please enter the name for the file that is to be saved (extension included): ");
-        String name = "";
+        String name;
         while (true) {
             name = auxCheckInputValid("", input);
             if (name.equals(SECRET_STRING)) {
@@ -891,23 +919,23 @@ public class UserInterface {
             auxSaveFile(name, listProjects);
         } catch (Exception e) {
             System.out.println("ERROR: " + e.getMessage());
-            System.exit(1);
+            return;
         }
 
-        System.out.print("\n");
+        System.out.print("Successfully loaded file.\n");
     }
 
 
     // *** Main entry method. ***
     public static void main(String[] args) {
         // Debugging toggles.
-        boolean debug = false;
-        boolean projectCreate = false;
-        boolean taskCreate = false;
-        boolean viewProjects = false;
-        boolean viewCompleteTasks = false;
-        boolean viewFilteredTasks = false;
-        boolean viewAverageTypeDurations = false;
+        boolean debug = true;
+        boolean projectCreate = true;
+        boolean taskCreate = true;
+        boolean viewProjects = true;
+        boolean viewCompleteTasks = true;
+        boolean viewFilteredTasks = true;
+        boolean viewAverageTypeDurations = true;
 
         Project[] projects = new Project[10];
 
@@ -924,7 +952,7 @@ public class UserInterface {
                 \t* SF: save file
                 """;
 
-        Scanner input = new Scanner(System.in);
+        Scanner scannerInput = new Scanner(System.in);
 
         // Debug stuff
         if (debug) {
@@ -950,81 +978,85 @@ public class UserInterface {
 
         System.out.println("———Project Management System———");
 
-        while (true && (!debug)) {
+        while ((!debug)) {
             System.out.print(help);
             System.out.print("> ");
-            String line = auxCheckInputValid("", input);
+            String line = auxCheckInputValid("", scannerInput);
             if (line.equals(SECRET_STRING)) { continue; }
-            if (line != null) {
-                switch (line.toUpperCase()) {
-                    // Quit.
-                    case "Q":
-                        System.exit(0);
-                        break;
-                    // Create Project.
-                    case "CP":
-                        Project newProject = null;
+            switch (line.toUpperCase()) {
+                // Quit.
+                case "Q":
+                    System.exit(0);
+                    break;
+                // Create Project.
+                case "CP":
+                    Project newProject = null;
+                    try {
+                        newProject = optionCreateProject(scannerInput, projects);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
+                    if (newProject == null) {
+                        System.out.println("ERROR: Unknown error failed Project creation.");
+                    } else {
+                        Project[] tempProjects;
                         try {
-                            newProject = optionCreateProject(input, projects);
+                            tempProjects = auxAddToArray(projects, newProject);
                         } catch (Exception e) {
                             System.out.println("ERROR: " + e.getMessage());
+                            return;
                         }
-                        if (newProject == null) {
-                            System.out.println("ERROR: Unknown error failed Project creation.");
-                        } else {
-                            Project[] tempProjects;
-                            try {
-                                tempProjects = auxAddToArray(projects, newProject);
-                            } catch (Exception e) {
-                                System.out.println("ERROR: " + e.getMessage());
-                                return;
-                            }
-                            if (tempProjects == null) {
-                                System.out.println("ERROR: Failed to add new Project to array.");
-                            }
+                        if (tempProjects == null) {
+                            System.out.println("ERROR: Failed to add new Project to array.");
                         }
-                        break;
-                    // Display Info.
-                    case "D":
-                        optionDisplay(input, projects);
-                        break;
-                    // Remove Project.
-                    case "RP":
-                        try {
-                            projects = optionRemoveProject(input, projects);
-                        } catch (Exception e) {
-                            System.out.println("ERROR: " + e.getMessage());
+                    }
+                    break;
+                // Display Info.
+                case "D":
+                    optionDisplay(scannerInput, projects);
+                    break;
+                // Remove Project.
+                case "RP":
+                    try {
+                        projects = optionRemoveProject(scannerInput, projects);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
+                    break;
+                // Create Task.
+                case "CT":
+                    optionCreateTask(scannerInput, projects);
+                    break;
+                // Edit Task.
+                case "ET":
+                    try {
+                        optionEditTask(scannerInput, projects);
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
+                    break;
+                // Remove Task.
+                case "RT":
+                    optionRemoveTask(scannerInput, projects);
+                    break;
+                // Load File.
+                case "LF":
+                    try {
+                        Project[] potentialNewProjects = optionLoad(scannerInput);
+                        if (potentialNewProjects != null) {
+                            projects = potentialNewProjects;
                         }
-                        break;
-                    // Create Task.
-                    case "CT":
-                        optionCreateTask(input, projects);
-                        break;
-                    // Edit Task.
-                    case "ET":
-                        optionEditTask(input, projects);
-                        break;
-                    // Remove Task.
-                    case "RT":
-                        optionRemoveTask(input, projects);
-                        break;
-                    // Load File.
-                    case "LF":
-                        try {
-                            projects = optionLoad(input);
-                        } catch (Exception e) {
-                            System.out.println("ERROR: " + e.getMessage());
-                            System.exit(1);
-                        }
-                        break;
-                    // Save File.
-                    case "SF":
-                        optionSave(input, projects);
-                        break;
-                    default:
-                        System.out.println("Unknown option.");
-                        break;
-                }
+                    } catch (Exception e) {
+                        System.out.println("ERROR: " + e.getMessage());
+                    }
+                    break;
+                // Save File.
+                case "SF":
+                    optionSave(scannerInput, projects);
+                    break;
+                default:
+                    System.out.println("Unknown option.");
+                    break;
             }
 
         }
