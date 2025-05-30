@@ -75,7 +75,8 @@ public class Project {
         }
     }
 
-    // Methods relating to Tasks.
+    // Method invoked by UserInterface.optionCreateTask() to create a Task for a Projct.
+    // It in turn invokes Task.createTask(), this method mainly dealing with placing it in the tasks array.
     public void createTask(int ID, String description, String type, int duration, Project[] listProjects, boolean completed) throws Exception {
         for (int i = 0; i < tasks.length; i++) {
             if (tasks[i] == null) {
@@ -86,11 +87,12 @@ public class Project {
 
     }
 
-    // Other methods relating to the Project itself and its Tasks.
+    // Method invoked by UserInterface.optionRemoveTask() to remove a Task from a Project.
     public int deleteTask(int ID) throws Exception {
 
         boolean found = false;
-        for (int i = 0; i < tasks.length; i++) {
+        int i = 0;
+        for (; i < tasks.length; i++) {
             if (tasks[i] != null && tasks[i].getTaskId() == ID) {
                 tasks[i] = null;
                 found = true;
@@ -101,9 +103,15 @@ public class Project {
             throw new Exception("Could not find Task for deletion from inputted Project ID.");
         }
 
+        for (int j = i; j < (tasks.length - 1); j++) {
+            tasks[j] = tasks[j+1];
+        }
+        tasks[tasks.length - 1] = null;
+
         return this.projectId;
     }
 
+    // Apodictic.
     public Task retrieveTaskByID(int ID) throws Exception {
         for (Task task: tasks) {
             if (task.getTaskId() == ID) {
@@ -114,6 +122,7 @@ public class Project {
         throw new Exception("Could not retrieve Task by specified ID.");
     }
 
+    // Apodictic.
     public int amountTasks() {
         int amount = 0;
         for (Task task: tasks) {
@@ -122,6 +131,7 @@ public class Project {
         return amount;
     }
 
+    // Method invoked by UserInterface.
     public static Project createProject(Project[] listProjects, int newID, String newName, String newType) throws Exception {
         Project tempProject = new Project();
 

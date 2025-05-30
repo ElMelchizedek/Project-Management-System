@@ -44,7 +44,6 @@ public class Task {
         }
         this.taskId = ID;
     }
-
     public void setTaskType(String type) throws Exception {
         boolean good = false;
         for (String realType: permittedTypes) {
@@ -56,7 +55,7 @@ public class Task {
         if (!good) {
             throw new Exception("Task Type string is not either \"A\", \"L\", or \"S\"!");
         }
-        this.taskType = type.charAt(0);
+        this.taskType = type.toUpperCase().charAt(0);
     }
     public void setDescription(String description) throws Exception {
         if (description.isEmpty()) {
@@ -73,7 +72,7 @@ public class Task {
     }
     public void setCompleted(boolean completed) { this.completed = completed; }
 
-    // Auxiliary Methods
+    // ! Auxilliary Methods !
     // Returns status of Task, per the "completed" variable.
     public String status() {
         if (completed) {
@@ -81,6 +80,7 @@ public class Task {
         } else { return "Pending"; }
     }
 
+    // The real, proper Task creation method invoked by Project.createTask().
     public static Task createTask(Project project, int newID, String newDesc, String newType, int newDuration, Project[] listProjects, boolean completed) throws Exception {
         Task tempTask = new Task();
 
@@ -97,4 +97,14 @@ public class Task {
         return tempTask;
     }
 
+    // Returns what the type actually is (S: "Support", for example), for purposes of printing to the user.
+    public String typeInEnglish() {
+        String string = "";
+        switch (taskType) {
+            case 'A' -> string = "Administrative";
+            case 'L' -> string = "Logistics";
+            case 'S' -> string = "Support";
+        }
+        return string;
+    }
 }
